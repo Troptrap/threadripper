@@ -6,8 +6,19 @@ import requests
 import llama_cpp
 from math import sqrt, pow
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from util import cosine_similarity
 from flask import Flask, request, jsonify, send_from_directory
+import logging
+
+
+class StatusFilter(logging.Filter):
+    def filter(self, record):  
+        return "status" not in record.getMessage()
+
+log = logging.getLogger('werkzeug')
+log.addFilter(StatusFilter())
+load_dotenv() 
 
 llm = llama_cpp.Llama(model_path="models/all-MiniLM-L6-v2-Q8_0.gguf", embedding=True)
 categories = ["backgrounds", "fashion", "nature", "science", "education", "feelings", "health", "people", "religion", "places", "animals", "industry", "computer", "food", "sports", "transportation", "travel", "buildings", "business", "music"]
@@ -34,7 +45,8 @@ def analyze_text(txt):
     with open("Keywords.pkl","rb") as k:
       keywords = pickle.load(k)
       kws = str(keywords[n]).replace('_', ' ')
-      kw = kws.partition(",")[0]
+      #kw = kws.partition(",")[0]
+      kw = cat+','+kws
       print("Keywords: "+kw)  
       return kw
 app = Flask(__name__, static_folder="frontend")
@@ -142,9 +154,14 @@ def scrape():
     if (tweet_detail['img'] is None and tweet_detail['vid'] is None):
       STATUS = "No media.Analyzing tweet.. Wait"
       q = analyze_text(text)
-      r = requests.get('https://pixabay.com/api/?key=8472264-420a5c23ea42aba94aefdd88e&q='+q)
+
+      pexels_api_key = os.getenv('PEXELS_API_KEY')
+      headers = {'Authorization': pexels_api_key}
+      r = requests.get(f'https://api.pexels.com/v1/search?query={q}', headers=headers)
       photo_data = r.json()
-      tweet_detail['img'] = photo_data['hits'][0]['largeImageURL']
+      print(photo_data)
+      photo_id = photo_data['photos'][0]['id']
+      tweet_detail['img'] = f'https://images.pexels.com/photos/{photo_id}/pexels-photo-{photo_id}.jpeg'
     tweet_dict[x] = tweet_detail
   
   STATUS = "Loading resources.."

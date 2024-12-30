@@ -1,123 +1,124 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <title>Thread ripper</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-        <script>
-            eruda.init();
-        </script>
-        <link href="style.css" rel="stylesheet" />
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-            rel="stylesheet" />
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
-    </head>
-    <body>
-        <div class="container text-center">
-            <div class="row">
-                <p id="status"></p>
-                <p>Insert link below</p>
-            </div>
-            <div class="row">
-                <input
-                    type="url"
-                    name="url"
-                    id="url"
-                    value="https://threadreaderapp.com/thread/1868467535198187523.html?utm_campaign=topunroll" />
-            </div>
-            <div class="row">
-                <input type="button" name="scrape" id="scrape" value="Scrape" />
-            </div>
-        </div>
+	<head>
+		<title>Thread ripper</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+		<script>
+			eruda.init();
+		</script>
+		<link href="style.css" rel="stylesheet" />
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+			rel="stylesheet" />
+		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<div class="container text-center">
+			<div class="row">
+				<p id="status"></p>
+				<p>Insert link below</p>
+			</div>
+			<div class="row">
+				<input
+					type="url"
+					name="url"
+					id="url"
+					value="https://threadreaderapp.com/thread/1868467535198187523.html?utm_campaign=topunroll" />
+			</div>
+			<div class="row">
+				<input type="button" name="scrape" id="scrape" value="Scrape" />
+			</div>
+		</div>
 
-        <script type="application/javascript" charset="utf-8">
-            document.addEventListener("DOMContentLoaded", (event) => {
-                console.log("DOM fully loaded and parsed");
-                function statusPolling() {
-                    let statusElem = document.getElementById("status");
-                    fetch("/status").then((response) =>
-                        response.text().then((data) => {
-                            statusElem.innerText = data;
-                        })
-                    );
-                }
-                setInterval(statusPolling, 500);
-                const scrapeBtn = document.getElementById("scrape");
-                const scrapeUrl = document.getElementById("url");
+		<script type="application/javascript" charset="utf-8">
+			document.addEventListener("DOMContentLoaded", (event) => {
+				console.log("DOM fully loaded and parsed");
+				function statusPolling() {
+					let statusElem = document.getElementById("status");
+					fetch("/status").then((response) =>
+						response.text().then((data) => {
+							statusElem.innerText = data;
+						})
+					);
+				}
+				setInterval(statusPolling, 500);
+				const scrapeBtn = document.getElementById("scrape");
+				const scrapeUrl = document.getElementById("url");
+				// Add focus event listener to clear the URL input field
+				scrapeUrl.addEventListener("focus", () => {
+					scrapeUrl.value = "";
+				});
 
-                // Add focus event listener to clear the URL input field
-                scrapeUrl.addEventListener("focus", () => {
-                    scrapeUrl.value = "";
-                });
+				scrapeBtn.addEventListener("click", () => {
+					// Find and delete all divs with 'container-grid' class
+					document
+						.querySelectorAll(".container-grid")
+						.forEach((div) => div.remove());
 
-                scrapeBtn.addEventListener("click", () => {
-                    // Find and delete all divs with 'container-grid' class
-                    document.querySelectorAll('.container-grid').forEach(div => div.remove());
+					let url = scrapeUrl.value;
+					let fetchThread = fetch("scrape", {
+						method: "POST",
+						headers: {
+							Accept: "application/json, text/plain, */*",
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({ url: url })
+					});
+					fetchThread.then((response) =>
+						response.json().then((data) => {
+							Object.keys(data).forEach((tweet) => {
+								console.log(data[tweet]["text"]);
+								console.log(data[tweet]["img"]);
+								console.log(data[tweet]["vid"]);
+								let row = document.createElement("div");
+								let text = document.createElement("div");
+								let vid = document.createElement("div");
+								row.classList.add("container-grid");
+								text.classList.add("grid-column");
+								vid.classList.add("grid-column");
 
-                    let url = scrapeUrl.value;
-                    let fetchThread = fetch("scrape", {
-                        method: "POST",
-                        headers: {
-                            Accept: "application/json, text/plain, */*",
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ url: url })
-                    });
-                    fetchThread.then((response) =>
-                        response.json().then((data) => {
-                            Object.keys(data).forEach((tweet) => {
-                                console.log(data[tweet]["text"]);
-                                console.log(data[tweet]["img"]);
-                                console.log(data[tweet]["vid"]);
-                                let row = document.createElement("div");
-                                let text = document.createElement("div");
-                                let vid = document.createElement("div");
-                                row.classList.add("container-grid");
-                                text.classList.add("grid-column");
-                                vid.classList.add("grid-column");
+								let tweetTxt = document.createElement("p");
+								tweetTxt.innerText = data[tweet]["text"];
+								let closeTxt = document.createElement("button");
+								closeTxt.classList.add("close-button");
+								closeTxt.id = `closetxt-${tweet}`;
+								closeTxt.textContent = "X";
+								text.appendChild(closeTxt);
+								text.appendChild(tweetTxt);
+								row.appendChild(text);
 
-                                let tweetTxt = document.createElement("p");
-                                tweetTxt.innerText = data[tweet]["text"];
-                                let closeTxt = document.createElement("button");
-                                closeTxt.classList.add("close-button");
-                                closeTxt.id = `closetxt-${tweet}`;
-                                closeTxt.textContent = "X";
-                                text.appendChild(closeTxt);
-                                text.appendChild(tweetTxt);
-                                row.appendChild(text);
+								let vidPlayer = document.createElement("video");
+								if (data[tweet]["vid"] !== null) {
+									vidPlayer.setAttribute(
+										"src",
+										data[tweet]["vid"] + "#t=1"
+									);
+									vidPlayer.setAttribute("controls", "true");
+									vidPlayer.setAttribute("preload", "auto");
+								} else {
+									vidPlayer.setAttribute(
+										"poster",
+										data[tweet]["img"]
+									);
+								}
+								let closeVid = document.createElement("button");
+								closeVid.classList.add("close-button");
+								closeVid.textContent = "X";
+								closeVid.id = `closevid-${tweet}`;
+								closeVid.textContent = "X";
+								vid.appendChild(closeVid);
+								vid.appendChild(vidPlayer);
+								row.appendChild(vid);
 
-                                let vidPlayer = document.createElement("video");
-                                if (data[tweet]["vid"] !== null) {
-                                    vidPlayer.setAttribute(
-                                        "src",
-                                        data[tweet]["vid"]+"#t=1"
-                                    );
-                                    vidPlayer.setAttribute("controls", "true");
-                                    vidPlayer.setAttribute("preload", "auto");
-                                } else {
-                                    vidPlayer.setAttribute(
-                                        "poster",
-                                        data[tweet]["img"]
-                                    );
-                                }
-                                let closeVid = document.createElement("button");
-                                closeVid.classList.add("close-button");
-                                closeVid.textContent = "X";
-                                closeVid.id = `closevid-${tweet}`;
-                                closeVid.textContent = "X";
-                                vid.appendChild(closeVid);
-                                vid.appendChild(vidPlayer);
-                                row.appendChild(vid);
-
-                                document.body.appendChild(row);
-                            });
-                        })
-                    );
-                });
-            });
-        </script>
-    </body>
+								document.body.appendChild(row);
+							});
+						})
+					);
+				});
+			});
+		</script>
+	</body>
 </html>
