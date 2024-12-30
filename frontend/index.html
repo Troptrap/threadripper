@@ -54,6 +54,9 @@
                 });
 
                 scrapeBtn.addEventListener("click", () => {
+                    // Find and delete all divs with 'container-grid' class
+                    document.querySelectorAll('.container-grid').forEach(div => div.remove());
+
                     let url = scrapeUrl.value;
                     let fetchThread = fetch("scrape", {
                         method: "POST",
