@@ -2,6 +2,14 @@ import llama_cpp
 from math import sqrt, pow
 import pickle
 import requests
+import math
+from sklearn.decomposition import PCA
+
+llm = llama_cpp.Llama(model_path="models/all-MiniLM-L6-v2-Q8_0.gguf", embedding=True)
+
+
+
+
 
 def cosine_similarity(vector1: list[float], vector2: list[float]) -> float:
     """Returns the cosine of the angle between two vectors."""
@@ -61,17 +69,44 @@ def grab_synset(url):
   response = requests.get(url)
   text = response.text
   labels = text.splitlines()
-  '''
+  
   for label in labels:
     labels_embeddings.append(llm.create_embedding(label)["data"][0]["embedding"])
+  # Convert to a 2D array for PCA
+  labels_embeddings_2d = [embedding for embedding in labels_embeddings]
+    
+  # Apply PCA to reduce dimensions, e.g., to 50 dimensions
+  pca = PCA(n_components=50)
+  reduced_embeddings = pca.fit_transform(labels_embeddings_2d)
+
+    # Save the reduced embeddings to a file
+  with open("synset_embeddings_reduced.pkl", "wb") as f:
+        pickle.dump(reduced_embeddings, f)
   print("Embeddings generated")
   with open("synset_embeddings.pkl","wb") as f:
     pickle.dump(labels_embeddings,f)
   print("File written")
-  '''
+  
   with open("keywords.pkl", "wb") as f:
     pickle.dump(labels,f)
   print("Keywords saved")
   
 url = "https://storage.googleapis.com/bit_models/imagenet21k_wordnet_lemmas.txt"
 #grab_synset(url)
+
+def reduce_embeddings():
+  with open("synset_embeddings.pkl", "rb") as f:
+    labels_embeddings = pickle.load(f)
+    # Convert to a 2D array for PCA
+    labels_embeddings_2d = [embedding for embedding in labels_embeddings]
+    
+    # Apply PCA to reduce dimensions, e.g., to 50 dimensions
+    pca = PCA(n_components=50)
+    reduced_embeddings = pca.fit_transform(labels_embeddings_2d)
+
+    # Save the reduced embeddings to a file
+    with open("synset_embeddings_reduced.pkl", "wb") as f:
+        pickle.dump(reduced_embeddings, f)
+    
+    print("Reduced embeddings saved")
+reduce_embeddings()

@@ -7,7 +7,7 @@ import llama_cpp
 from math import sqrt, pow
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from util import cosine_similarity
+from utils import analyze_text
 from flask import Flask, request, jsonify, send_from_directory
 import logging
 
@@ -23,32 +23,7 @@ load_dotenv()
 llm = llama_cpp.Llama(model_path="models/all-MiniLM-L6-v2-Q8_0.gguf", embedding=True)
 categories = ["backgrounds", "fashion", "nature", "science", "education", "feelings", "health", "people", "religion", "places", "animals", "industry", "computer", "food", "sports", "transportation", "travel", "buildings", "business", "music"]
 STATUS = "Standby"
-def analyze_text(txt):
-  emb = llm.create_embedding(txt)
-  txtemb = emb["data"][0]["embedding"]
-  with open("category_embeddings.pkl", "rb") as f:
-    categories_emb = pickle.load(f)
-    c_similarity_list = []  
-    for emb in categories_emb:
-      cos_sim = cosine_similarity(emb, txtemb)
-      c_similarity_list.append(cos_sim)
-    n = c_similarity_list.index(max(c_similarity_list))
-    cat = categories[n]
-    print("Category: "+cat)  
-  with open("synset_embeddings.pkl", "rb") as f:
-    keywords_emb = pickle.load(f)
-    k_similarity_list = []  
-    for emb in keywords_emb:
-      cos_sim = cosine_similarity(emb, txtemb)
-      k_similarity_list.append(cos_sim)
-    n = k_similarity_list.index(max(k_similarity_list))
-    with open("Keywords.pkl","rb") as k:
-      keywords = pickle.load(k)
-      kws = str(keywords[n]).replace('_', ' ')
-      #kw = kws.partition(",")[0]
-      kw = cat+','+kws
-      print("Keywords: "+kw)  
-      return kw
+
 app = Flask(__name__, static_folder="frontend")
 
 
@@ -152,7 +127,7 @@ def scrape():
       tweet_detail['vid'] = link_mp4
     
     if (tweet_detail['img'] is None and tweet_detail['vid'] is None):
-      STATUS = "No media.Analyzing tweet.. Wait"
+      STATUS = f"No media.Analyzing {tweetno}.. Wait"
       q = analyze_text(text)
 
       pexels_api_key = os.getenv('PEXELS_API_KEY')
