@@ -30,7 +30,8 @@
 					</div>
 					<div class="menu-items">
 						<li>
-							Default source for images
+							<a href="#"> Images source </a>
+						
 							<select id="image-source-selector">
 								<option value="pexels">Pexels</option>
 								<option value="pixabay">Pixabay</option>
@@ -39,10 +40,83 @@
 								<option value="bing">Bing</option>
 							</select>
 						</li>
+						<li>
+							<a href="#" id="settings-link">API keys</a>
+						</li>
 					</div>
 				</div>
 			</div>
 		</nav>
+
+		<div
+			class="modal fade"
+			id="apiKeysModal"
+			tabindex="-1"
+			aria-labelledby="apiKeysModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="apiKeysModalLabel">
+							API Keys
+						</h5>
+						<button
+							type="button"
+							class="btn-close"
+							data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="api-keys-form">
+							<div class="mb-3">
+								<label for="pexels-api-key" class="form-label"
+									>Pexels API Key</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="pexels-api-key"
+									placeholder="Enter Pexels API Key" />
+							</div>
+							<div class="mb-3">
+								<label for="pixabay-api-key" class="form-label"
+									>Pixabay API Key</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="pixabay-api-key"
+									placeholder="Enter Pixabay API Key" />
+							</div>
+							<div class="mb-3">
+								<label for="unsplash-api-key" class="form-label"
+									>Unsplash API Key</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="unsplash-api-key"
+									placeholder="Enter Unsplash API Key" />
+							</div>
+							<div class="mb-3">
+								<label for="flickr-api-key" class="form-label"
+									>Flickr API Key</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="flickr-api-key"
+									placeholder="Enter Flickr API Key" />
+							</div>
+
+							<button type="submit" class="btn btn-primary">
+								Save
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div class="container text-center">
 			<div class="row">
 				<p id="status"></p>
@@ -79,6 +153,37 @@
 						})
 					);
 				}
+
+				const settingsLink = document.getElementById("settings-link");
+				const apiKeysModal = new bootstrap.Modal(
+					document.getElementById("apiKeysModal")
+				);
+				settingsLink.addEventListener("click", () => {
+					apiKeysModal.show();
+				});
+
+				const apiKeysForm = document.getElementById("api-keys-form");
+				apiKeysForm.addEventListener("submit", (event) => {
+					event.preventDefault();
+					const pexelsApiKey =
+						document.getElementById("pexels-api-key").value;
+					const pixabayApiKey =
+						document.getElementById("pixabay-api-key").value;
+					const unsplashApiKey =
+						document.getElementById("unsplash-api-key").value;
+					const flickrApiKey =
+						document.getElementById("flickr-api-key").value;
+
+					// Save the API keys (you can store them in localStorage or send them to a server)
+					console.log("Pexels API Key:", pexelsApiKey);
+					console.log("Pixabay API Key:", pixabayApiKey);
+					console.log("Unsplash API Key:", unsplashApiKey);
+					console.log("Flickr API Key:", flickrApiKey);
+
+					// Close the modal
+					apiKeysModal.hide();
+				});
+
 				setInterval(statusPolling, 500);
 				const scrapeBtn = document.getElementById("scrape");
 				const scrapeUrl = document.getElementById("url");
