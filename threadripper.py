@@ -19,6 +19,10 @@ class StatusFilter(logging.Filter):
 log = logging.getLogger('werkzeug')
 log.addFilter(StatusFilter())
 load_dotenv() 
+PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+PIXABAY_API_KEY = os.getenv("PIXABAY_API_KEY")
+FLICKR_API_KEY = os.getenv("FLICKR_API_KEY")
+UNSPLASH_API_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 
 llm = llama_cpp.Llama(model_path="models/all-MiniLM-L6-v2-Q8_0.gguf", embedding=True)
 categories = ["backgrounds", "fashion", "nature", "science", "education", "feelings", "health", "people", "religion", "places", "animals", "industry", "computer", "food", "sports", "transportation", "travel", "buildings", "business", "music"]
@@ -35,6 +39,73 @@ PORT = 8000
 @app.route("/status/")
 def status():
   return STATUS
+
+def scrape_bing_images(query):
+    
+    search_url = f"https://www.bing.com/images/search?q={query.replace(' ', '+')}&form=HDRSC2"
+    
+
+  
+    headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"}
+    response = requests.get(search_url, headers=headers)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'html.parser')
+    media_urls = []
+
+    # Extract image URLs from the search results
+    image_elements = soup.find_all('a', {'class': 'iusc'})
+    for element in image_elements:
+      m = re.search(r'murl":"(https://.*?)"', str(element))
+      if m:
+        media_urls.append(m.group(1))
+
+    return media_urls
+
+@app.route('/bing/photo/search/<term>', methods=['GET'])
+def scrape_images(term):
+    image_urls = scrape_bing_images(term)
+    return jsonify(image_urls)
+  
+
+@app.route("/unsplash/photo/search/<term>", methods=["GET"])
+def search_unsplash_photos(term):
+    url = f"https://api.unsplash.com/search/photos?page=1&per_page=15&query={term}&client_id={UNSPLASH_API_KEY}"
+    response = requests.get(url)
+    data = response.json()
+    urls = (photo["urls"]["full"] for photo in data["results"])
+    return jsonify(list(urls))
+  
+  
+@app.route("/flickr/photo/search/<term>", methods=["GET"])
+def search_flickr_photos(term):
+    term = term.replace(" ", ",")
+    url = f"https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key={FLICKR_API_KEY}&text={term}&per_page=15&format=json&nojsoncallback=1"
+    response = requests.get(url)
+    data = response.json()
+    urls = (
+        f"https://live.staticflickr.com/{photo['server']}/{photo['id']}_{photo['secret']}_b.jpg"
+        for photo in data["photos"]["photo"]
+    )
+    return jsonify(list(urls))
+    
+@app.route("/pixabay/photo/search/<term>", methods=["GET"])
+def search_pixabay_photos(term):
+    url = f"https://pixabay.com/api/?key={PIXABAY_API_KEY}&q={term}"
+    response = requests.get(url)
+    data = response.json()
+    urls = (photo["largeImageURL"] for photo in data["hits"])
+    return jsonify(list(urls))  
+    
+@app.route("/pexels/photo/search/<term>", methods=["GET"])
+def search_pexels_photos(term):
+    url = "https://api.pexels.com/v1/search?query=" + term
+    headers = {"Authorization": PEXELS_API_KEY}
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    urls = (photo["src"]["original"] for photo in data["photos"])
+    return jsonify(list(urls))
+
 
 def remove_urls(text, replacement_text=''):
     url_pattern = re.compile(r'https?://\S+|www\.\S+')
