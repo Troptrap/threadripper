@@ -39,6 +39,47 @@ PORT = 8000
 @app.route("/status/")
 def status():
   return STATUS
+  
+  
+@app.route("/credentials/get/<service>", methods=["GET"])
+def get_api_key(service):
+    api_keys = {
+        "PEXELS_API_KEY": PEXELS_API_KEY,
+        "PIXABAY_API_KEY": PIXABAY_API_KEY,
+        "FLICKR_API_KEY": FLICKR_API_KEY,
+        "UNSPLASH_API_KEY": UNSPLASH_API_KEY,
+    }
+    key = api_keys.get(service.upper() + "_API_KEY")
+    if key:
+        return jsonify({"exists": True})
+    return jsonify({"exists": False})
+    
+@app.route("/credentials/set", methods=["POST"])
+def set_api_key():
+    data = request.json
+    service = data.get("service")
+    new_key = data.get("key")
+    
+    if not service or not new_key:
+        return jsonify({"error": "Service and key are required"}), 400
+    
+    env_file = ".env"
+    with open(env_file, "r") as file:
+        lines = file.readlines()
+    
+    found = False
+    with open(env_file, "w") as file:
+        for line in lines:
+            if line.startswith(service.upper() + "_API_KEY="):
+                file.write(f"{service.upper()}_API_KEY={new_key}\n")
+                found = True
+            else:
+                file.write(line)
+        if not found:
+            file.write(f"{service.upper()}_API_KEY={new_key}\n")
+    
+    load_dotenv()
+    return jsonify({"success": True})
 
 def scrape_bing_images(query):
     
