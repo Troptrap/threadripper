@@ -94,6 +94,7 @@
     </div>
 
     <script type="application/javascript" charset="utf-8">
+        var SOURCE = "pexels"; // Default value
         document.addEventListener("DOMContentLoaded", (event) => {
             console.log("DOM fully loaded and parsed");
             const imageSourceSelector = document.getElementById("image-source-selector");
@@ -222,12 +223,22 @@
 
                             let vidPlayer = document.createElement("video");
                             if (data[tweet]["vid"] !== null) {
-                                vidPlayer.setAttribute("src", data[tweet]["vid"] + "#t=1");
-                                vidPlayer.setAttribute("controls", "true");
-                                vidPlayer.setAttribute("preload", "auto");
-                            } else {
-                                vidPlayer.setAttribute("poster", data[tweet]["img"]);
-                            }
+                        vidPlayer.setAttribute("src", data[tweet]["vid"] + "#t=1");
+                        vidPlayer.setAttribute("controls", "true");
+                        vidPlayer.setAttribute("preload", "auto");
+                    } else if (data[tweet]["img"] !== null) {
+                        vidPlayer.setAttribute("poster", data[tweet]["img"]);
+                    } else {
+                        // Fetch image based on keyword
+                        let keyword = data[tweet]["keyword"];
+                        fetch(`/${SOURCE}/photo/search/${keyword}`)
+                            .then(response => response.json())
+                            .then(images => {
+                                if (images.length > 0) {
+                                    vidPlayer.setAttribute("poster", images[0]);
+                                }
+                            });
+                    }
                             let closeVid = document.createElement("button");
                             closeVid.classList.add("close-button");
                             closeVid.textContent = "X";

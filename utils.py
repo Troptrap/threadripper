@@ -52,7 +52,7 @@ def analyze_text(txt):
   idx = highest_similarity(normalized_query, saved_embeddings_matrix)
   with open("keywords.pkl", "rb") as f:
     kws = pickle.load(f)
-    kw =str(kws[idx]).replace('_', ' ')
+    kw =str(kws[idx]).replace('_', ' ').replace(',',' ')
     return kw
   
 

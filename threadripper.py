@@ -241,7 +241,8 @@ def scrape():
     if (tweet_detail['img'] is None and tweet_detail['vid'] is None):
       STATUS = f"No media.Analyzing {tweetno}.. Wait"
       q = analyze_text(text)
-
+      tweet_detail['keyword'] = q
+      '''
       pexels_api_key = os.getenv('PEXELS_API_KEY')
       headers = {'Authorization': pexels_api_key}
       r = requests.get(f'https://api.pexels.com/v1/search?query={q}', headers=headers)
@@ -249,6 +250,7 @@ def scrape():
       print(photo_data)
       photo_id = photo_data['photos'][0]['id']
       tweet_detail['img'] = f'https://images.pexels.com/photos/{photo_id}/pexels-photo-{photo_id}.jpeg'
+      '''
     tweet_dict[x] = tweet_detail
   
   STATUS = "Loading resources.."

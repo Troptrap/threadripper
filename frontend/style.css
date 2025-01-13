@@ -185,6 +185,8 @@ video {
 	position: absolute;
 	top: 1px;
 	left: 1px;
+	height: 2em;
+	width: 2em;
 	background-color: rgba(0, 0, 0, 0.5);
 	/*Semi-transparent background */
 	color: white;
