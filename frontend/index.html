@@ -260,14 +260,13 @@
                         console.log(data[tweet]["text"]);
                         console.log(data[tweet]["img"]);
                         console.log(data[tweet]["vid"]);
-                        let row = document.createElement("div");
-                        let text = document.createElement("div");
-                        let vid = document.createElement("div");
-                        row.classList.add("container-grid");
-                        text.classList.add("grid-column");
-                        vid.classList.add("grid-column");
+                        
+                        let container = document.createElement("div");
+                        container.classList.add("container-grid");
 
-                        // Adding select source above text and image
+                        // Adding select source as a separate row above text and image
+                        let selectRow = document.createElement("div");
+                        selectRow.classList.add("row");
                         let selectSource = document.createElement("select");
                         selectSource.classList.add("source-selector");
                         selectSource.innerHTML = `
@@ -278,7 +277,16 @@
                             <option value="flickr">Flickr</option>
                             <option value="bing">Bing</option>
                         `;
-                        row.appendChild(selectSource);
+                        selectRow.appendChild(selectSource);
+                      
+
+                        let row = document.createElement("div");
+                        row.classList.add("row");
+                        
+                        let text = document.createElement("div");
+                        let vid = document.createElement("div");
+                        text.classList.add("grid-column");
+                        vid.classList.add("grid-column");
 
                         let tweetTxt = document.createElement("p");
                         tweetTxt.innerText = data[tweet]["text"];
@@ -305,6 +313,7 @@
                                 .then((images) => {
                                     if (images.length > 0) {
                                         vidPlayer.setAttribute("poster", images[0]);
+                                      vidPlayer.datatset.keyword = keyword;
                                     }
                                 });
                         }
@@ -317,7 +326,9 @@
                         vid.appendChild(vidPlayer);
                         row.appendChild(vid);
 
-                        document.body.appendChild(row);
+                        container.appendChild(row);
+                        document.body.appendChild(selectRow);
+                        document.body.appendChild(container);
 
                         // Add event listener to change source for the current row
                         selectSource.addEventListener("change", function () {
@@ -326,6 +337,7 @@
                                 selectedSource = SOURCE;
                             }
                             // Fetch new image based on the selected source and keyword
+                            let keyword = vidPlayer.datatset.keyword;
                             fetch(`/${selectedSource}/photo/search/${keyword}`)
                                 .then((response) => response.json())
                                 .then((images) => {

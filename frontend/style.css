@@ -198,3 +198,15 @@ video {
 #status {
 	background-color: gray;
 }
+
+
+.container-grid .row {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.source-selector {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+}
