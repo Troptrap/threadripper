@@ -313,7 +313,7 @@
                                 .then((images) => {
                                     if (images.length > 0) {
                                         vidPlayer.setAttribute("poster", images[0]);
-                                      vidPlayer.datatset.keyword = keyword;
+                                      vidPlayer.dataset.keyword = keyword;
                                     }
                                 });
                         }
@@ -337,7 +337,7 @@
                                 selectedSource = SOURCE;
                             }
                             // Fetch new image based on the selected source and keyword
-                            let keyword = vidPlayer.datatset.keyword;
+                            let keyword = vidPlayer.dataset.keyword;
                             fetch(`/${selectedSource}/photo/search/${keyword}`)
                                 .then((response) => response.json())
                                 .then((images) => {
