@@ -267,18 +267,9 @@
                         // Adding select source as a separate row above text and image
                         let selectRow = document.createElement("div");
                         selectRow.classList.add("row");
-                        let selectSource = document.createElement("select");
+                       
+                      let selectSource = document.createElement("select");
                         selectSource.classList.add("source-selector");
-                        selectSource.innerHTML = `
-                            <option value="default">Default source</option>
-                            <option value="pexels">Pexels</option>
-                            <option value="pixabay">Pixabay</option>
-                            <option value="unsplash">Unsplash</option>
-                            <option value="flickr">Flickr</option>
-                            <option value="bing">Bing</option>
-                        `;
-                        selectRow.appendChild(selectSource);
-                      
 
                         let row = document.createElement("div");
                         row.classList.add("row");
@@ -303,9 +294,34 @@
                             vidPlayer.setAttribute("src", data[tweet]["vid"] + "#t=1");
                             vidPlayer.setAttribute("controls", "true");
                             vidPlayer.setAttribute("preload", "auto");
+                            selectSource.dataset.originalUrl = data[tweet]["vid"]; // Store original URL
                         } else if (data[tweet]["img"] !== null) {
                             vidPlayer.setAttribute("poster", data[tweet]["img"]);
+                            
+                        selectSource.innerHTML = `
+                            <option value="default">Default source</option>
+                            <option value="pexels">Pexels</option>
+                            <option value="pixabay">Pixabay</option>
+                            <option value="unsplash">Unsplash</option>
+                            <option value="flickr">Flickr</option>
+                            <option value="bing">Bing</option>
+                            <option value="original">Original</option>
+                            
+                        `;
+                        selectRow.appendChild(selectSource);
                         } else {
+                          
+                        selectSource.innerHTML = `
+                            <option value="default">Default source</option>
+                            <option value="pexels">Pexels</option>
+                            <option value="pixabay">Pixabay</option>
+                            <option value="unsplash">Unsplash</option>
+                            <option value="flickr">Flickr</option>
+                            <option value="bing">Bing</option>
+                            
+                            
+                        `;
+                        selectRow.appendChild(selectSource);
                             // Fetch image based on keyword
                             let keyword = data[tweet]["keyword"];
                             fetch(`/${SOURCE}/photo/search/${keyword}`)
@@ -335,7 +351,10 @@
                             let selectedSource = this.value;
                             if (selectedSource === "default") {
                                 selectedSource = SOURCE;
-                            }
+                            } 
+                            if (selectedSource === "original") {
+                                    vidPlayer.setAttribute("src", this.dataset.originalUrl + "#t=1");
+                                } else {
                             // Fetch new image based on the selected source and keyword
                             let keyword = vidPlayer.dataset.keyword;
                             fetch(`/${selectedSource}/photo/search/${keyword}`)
@@ -345,6 +364,7 @@
                                         vidPlayer.setAttribute("poster", images[0]);
                                     }
                                 });
+                                }
                         });
                     });
                 })
