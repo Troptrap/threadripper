@@ -8,6 +8,7 @@ from math import sqrt, pow
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from utils import analyze_text
+from flask_caching import Cache
 from flask import Flask, request, jsonify, send_from_directory
 import logging
 
@@ -29,6 +30,8 @@ categories = ["backgrounds", "fashion", "nature", "science", "education", "feeli
 STATUS = "Standby"
 
 app = Flask(__name__, static_folder="frontend")
+
+cache = Cache(app, config={'DEBUG': True, 'CACHE_TYPE': 'SimpleCache',"CACHE_DEFAULT_TIMEOUT": 1800})
 
 
 #app.config["UPLOAD_PATH"] = "media"
@@ -104,12 +107,14 @@ def scrape_bing_images(query):
     return media_urls
 
 @app.route('/bing/photo/search/<term>', methods=['GET'])
+@cache.cached()
 def scrape_images(term):
     image_urls = scrape_bing_images(term)
     return jsonify(image_urls)
   
 
 @app.route("/unsplash/photo/search/<term>", methods=["GET"])
+@cache.cached()
 def search_unsplash_photos(term):
     url = f"https://api.unsplash.com/search/photos?page=1&per_page=15&query={term}&client_id={UNSPLASH_API_KEY}"
     response = requests.get(url)
@@ -119,6 +124,7 @@ def search_unsplash_photos(term):
   
   
 @app.route("/flickr/photo/search/<term>", methods=["GET"])
+@cache.cached()
 def search_flickr_photos(term):
     term = term.replace(" ", ",")
     url = f"https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key={FLICKR_API_KEY}&text={term}&per_page=15&format=json&nojsoncallback=1"
@@ -131,6 +137,7 @@ def search_flickr_photos(term):
     return jsonify(list(urls))
     
 @app.route("/pixabay/photo/search/<term>", methods=["GET"])
+@cache.cached()
 def search_pixabay_photos(term):
     url = f"https://pixabay.com/api/?key={PIXABAY_API_KEY}&q={term}"
     response = requests.get(url)
@@ -139,6 +146,7 @@ def search_pixabay_photos(term):
     return jsonify(list(urls))  
     
 @app.route("/pexels/photo/search/<term>", methods=["GET"])
+@cache.cached()
 def search_pexels_photos(term):
     url = "https://api.pexels.com/v1/search?query=" + term
     headers = {"Authorization": PEXELS_API_KEY}

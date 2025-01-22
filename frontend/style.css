@@ -12,6 +12,7 @@ body {
 
 p {
 	font-size: 12px;
+	transition: font-size 0.5s ease; /* Smooth text resizing */
 }
 
 .container {
@@ -203,20 +204,21 @@ video {
 
 .close-button {
 	position: absolute;
-	top: 1px;
-	left: 1px;
-	height: 2em;
-	width: 2em;
+	display: none;
+	top: 1em;
+	right: 1em;
+	height: 3em;
+	width: 3em;
 	background-color: rgba(0, 0, 0, 0.5);
 	/*Semi-transparent background */
 	color: white;
 	border: none;
 	cursor: pointer;
 	border-radius: 3px;
-	z-index: 25;
+	//z-index: 25;
 }
 #status {
-	background-color: gray;
+	background-color: silver;
 }
 
 .container-grid .row {
@@ -238,7 +240,7 @@ video {
 	border: none;
 	cursor: pointer;
 	padding: 1.5em;
-	z-index: 1000;
+	z-index: 15;
 }
 
 .left-arrow {
@@ -246,4 +248,40 @@ video {
 }
 .right-arrow {
 	right: 0;
+}
+
+.flashing-border {
+	border: 3px solid pink;
+	animation: flash-border 0.5s infinite alternate;
+}
+
+@keyframes flash-border {
+	0% {
+		border-color: red;
+	}
+	50% {
+		border-color: orange;
+	}
+	100% {
+		border-color: brown;
+	}
+}
+
+.fstext {
+	width: 90vw;
+	height: 90vh;
+	position: absolute; /* Cover the whole screen */
+	top: 0;
+	left: 0;
+	background-color: silver;
+	z-index: 1000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: all 0.7s ease; /* Smooth transition */
+	//z-index: 25;
+}
+
+.fstext p {
+	font-size: 18px;
 }

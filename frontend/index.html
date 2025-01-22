@@ -247,6 +247,77 @@
 						});
 				}
 
+				function rightImage(source, elem) {
+					const vidPlayer = elem.parentElement.querySelector("video");
+					let currentIndex = parseInt(vidPlayer.dataset.current);
+					const maxIndex = vidPlayer.dataset.max;
+					const keyword = vidPlayer.dataset.keyword;
+					currentIndex += 1;
+					if (currentIndex <= maxIndex) {
+						vidPlayer.classList.add("flashing-border");
+						fetch(`/${source}/photo/search/${keyword}`)
+							.then((response) => response.json())
+							.then((images) => {
+								if (images.length > 0) {
+									const newPosterUrl = images[currentIndex];
+
+									// Preload the new poster image
+									const img = new Image();
+									img.src = newPosterUrl;
+
+									// When the image is fully loaded, update the poster and remove the border
+									img.onload = () => {
+										vidPlayer.dataset.current =
+											currentIndex;
+										vidPlayer.dataset.max = images.length;
+										vidPlayer.setAttribute(
+											"poster",
+											images[parseInt(currentIndex)]
+										);
+										vidPlayer.classList.remove(
+											"flashing-border"
+										);
+									};
+								}
+							});
+					}
+				}
+				function leftImage(source, elem) {
+					const vidPlayer = elem.parentElement.querySelector("video");
+					let currentIndex = parseInt(vidPlayer.dataset.current);
+					const maxIndex = vidPlayer.dataset.max;
+					const keyword = vidPlayer.dataset.keyword;
+					currentIndex -= 1;
+					if (currentIndex >= 0) {
+						vidPlayer.classList.add("flashing-border");
+						fetch(`/${source}/photo/search/${keyword}`)
+							.then((response) => response.json())
+							.then((images) => {
+								if (images.length > 0) {
+									const newPosterUrl = images[currentIndex];
+
+									// Preload the new poster image
+									const img = new Image();
+									img.src = newPosterUrl;
+
+									// When the image is fully loaded, update the poster and remove the border
+									img.onload = () => {
+										vidPlayer.dataset.current =
+											currentIndex;
+										vidPlayer.dataset.max = images.length;
+										vidPlayer.setAttribute(
+											"poster",
+											images[parseInt(currentIndex)]
+										);
+										vidPlayer.classList.remove(
+											"flashing-border"
+										);
+									};
+								}
+							});
+					}
+				}
+
 				setInterval(statusPolling, 500);
 				const scrapeBtn = document.getElementById("scrape");
 				const scrapeUrl = document.getElementById("url");
@@ -297,15 +368,32 @@
 								vid.classList.add("grid-media");
 
 								let tweetTxt = document.createElement("p");
-								tweetTxt.setAttribute("contenteditable", "true");
+
+								tweetTxt.setAttribute(
+									"contenteditable",
+									"true"
+								);
 								tweetTxt.innerText = data[tweet]["text"];
 								let closeTxt = document.createElement("button");
 								closeTxt.classList.add("close-button");
-								closeTxt.id = `closetxt-${tweet}`;
 								closeTxt.textContent = "X";
 								text.appendChild(closeTxt);
 								text.appendChild(tweetTxt);
 								row.appendChild(text);
+								text.addEventListener("click", () => {
+									text.classList.add("fstext");
+									closeTxt.style.display = "block";
+								});
+								closeTxt.addEventListener("click", () => {
+									closeTxt.style.display = "none";
+									
+
+									setTimeout(() => {
+        text.classList.remove("fstext");
+        console.log("Forcefully removed class after timeout");
+    }, 0);
+	
+								});
 
 								let vidPlayer = document.createElement("video");
 								if (data[tweet]["vid"] !== null) {
@@ -324,7 +412,7 @@
 									);
 
 									selectSource.innerHTML = `
-                            <option value="default">Default source</option>
+                            <option value=${SOURCE}>Default source</option>
                             <option value="pexels">Pexels</option>
                             <option value="pixabay">Pixabay</option>
                             <option value="unsplash">Unsplash</option>
@@ -336,7 +424,7 @@
 									selectRow.appendChild(selectSource);
 								} else {
 									selectSource.innerHTML = `
-                            <option value="default">Default source</option>
+                            <option value=${SOURCE}>Default source</option>
                             <option value="pexels">Pexels</option>
                             <option value="pixabay">Pixabay</option>
                             <option value="unsplash">Unsplash</option>
@@ -352,6 +440,9 @@
 										.then((response) => response.json())
 										.then((images) => {
 											if (images.length > 0) {
+												vidPlayer.dataset.current = "0";
+												vidPlayer.dataset.max =
+													images.length;
 												vidPlayer.setAttribute(
 													"poster",
 													images[0]
@@ -361,15 +452,12 @@
 											}
 										});
 								}
-								let closeVid = document.createElement("button");
-								closeVid.classList.add("close-button");
-								closeVid.textContent = "X";
-								closeVid.id = `closevid-${tweet}`;
-								closeVid.textContent = "X";
+								
 								let arrowLeft =
 									document.createElement("button");
 								arrowLeft.classList.add("arrow", "left-arrow");
 								arrowLeft.innerHTML = "&#9664;";
+								let currentSource = selectSource.value;
 
 								let arrowRight =
 									document.createElement("button");
@@ -378,16 +466,22 @@
 									"right-arrow"
 								);
 								arrowRight.innerHTML = "&#9654;";
+
 								vid.appendChild(arrowLeft);
 								vid.appendChild(arrowRight);
-								vid.appendChild(closeVid);
 								vid.appendChild(vidPlayer);
 								row.appendChild(vid);
 
 								container.appendChild(row);
 								document.body.appendChild(selectRow);
 								document.body.appendChild(container);
+								arrowRight.addEventListener("click", (event) =>
+									rightImage(currentSource, event.target)
+								);
 
+								arrowLeft.addEventListener("click", (event) =>
+									leftImage(currentSource, event.target)
+								);
 								// Add event listener to change source for the current row
 								selectSource.addEventListener(
 									"change",
@@ -414,6 +508,10 @@
 												)
 												.then((images) => {
 													if (images.length > 0) {
+														vidPlayer.dataset.current =
+															"0";
+														vidPlayer.dataset.max =
+															images.length;
 														vidPlayer.setAttribute(
 															"poster",
 															images[0]
