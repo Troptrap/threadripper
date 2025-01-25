@@ -241,70 +241,45 @@
                         });
                 }
 
-                function rightImage(source, elem) {
-                    const container = elem.closest(".container");
-                    const kwInput = container.querySelector(".keyword-input");
-                    const keyword = kwInput.value;
-                    const vidPlayer = elem.parentElement.querySelector("video");
-                    let currentIndex = parseInt(vidPlayer.dataset.current);
-                    const maxIndex = vidPlayer.dataset.max;
-                    currentIndex += 1;
-                    if (currentIndex <= maxIndex) {
-                        vidPlayer.classList.add("flashing-border");
-                        fetch(`/${source}/photo/search/${keyword}`)
-                            .then((response) => response.json())
-                            .then((images) => {
-                                if (images.length > 0) {
-                                    const newPosterUrl = images[currentIndex];
+                function navigateImage(direction, elem) {
+    const vidPlayer = elem.parentElement.querySelector("video");
+    const container = elem.closest(".container");
+    const kwInput = container.querySelector(".keyword-input");
+    const sourceSel = container.querySelector(".source-selector");
+    const source = sourceSel.value;
+    const keyword = kwInput.value;
+    let currentIndex = parseInt(vidPlayer.dataset.current);
+    const maxIndex = parseInt(vidPlayer.dataset.max);
 
-                                    // Preload the new poster image
-                                    const img = new Image();
-                                    img.src = newPosterUrl;
+    if (direction === "right" && currentIndex < maxIndex) {
+        currentIndex += 1;
+    } else if (direction === "left" && currentIndex > 0) {
+        currentIndex -= 1;
+    } else {
+        return; // Exit if index is out of bounds
+    }
 
-                                    // When the image is fully loaded, update the poster and remove the border
-                                    img.onload = () => {
-                                        vidPlayer.dataset.current = currentIndex;
-                                        vidPlayer.dataset.max = images.length;
-                                        vidPlayer.setAttribute("poster", images[parseInt(currentIndex)]);
-                                        vidPlayer.classList.remove("flashing-border");
-                                    };
-                                }
-                            });
-                    }
-                }
+    vidPlayer.classList.add("flashing-border");
+    fetch(`/${source}/photo/search/${keyword}`)
+        .then((response) => response.json())
+        .then((images) => {
+            if (images.length > 0) {
+                const newPosterUrl = images[currentIndex];
 
-                function leftImage(source, elem) {
-                    const vidPlayer = elem.parentElement.querySelector("video");
-                    const container = elem.closest(".container");
-                    const kwInput = container.querySelector(".keyword-input");
-                    const keyword = kwInput.value;
-                    let currentIndex = parseInt(vidPlayer.dataset.current);
-                    const maxIndex = vidPlayer.dataset.max;
-                    currentIndex -= 1;
-                    if (currentIndex >= 0) {
-                        vidPlayer.classList.add("flashing-border");
-                        fetch(`/${source}/photo/search/${keyword}`)
-                            .then((response) => response.json())
-                            .then((images) => {
-                                if (images.length > 0) {
-                                    const newPosterUrl = images[currentIndex];
+                // Preload the new poster image
+                const img = new Image();
+                img.src = newPosterUrl;
 
-                                    // Preload the new poster image
-                                    const img = new Image();
-                                    img.src = newPosterUrl;
-
-                                    // When the image is fully loaded, update the poster and remove the border
-                                    img.onload = () => {
-                                        vidPlayer.dataset.current = currentIndex;
-                                        vidPlayer.dataset.max = images.length;
-                                        vidPlayer.setAttribute("poster", images[parseInt(currentIndex)]);
-                                        vidPlayer.classList.remove("flashing-border");
-                                    };
-                                }
-                            });
-                    }
-                }
-
+                // When the image is fully loaded, update the poster and remove the border
+                img.onload = () => {
+                    vidPlayer.dataset.current = currentIndex;
+                    vidPlayer.dataset.max = images.length;
+                    vidPlayer.setAttribute("poster", images[currentIndex]);
+                    vidPlayer.classList.remove("flashing-border");
+                };
+            }
+        });
+}
                 
                 const scrapeBtn = document.getElementById("scrape");
                 const scrapeUrl = document.getElementById("url");
@@ -436,10 +411,10 @@
                                         });
                                 }
 
+                                let currentSource = selectSource.value;
                                 let arrowLeft = document.createElement("button");
                                 arrowLeft.classList.add("arrow", "left-arrow");
                                 arrowLeft.innerHTML = "&#9664;";
-                                let currentSource = selectSource.value;
 
                                 let arrowRight = document.createElement("button");
                                 arrowRight.classList.add("arrow", "right-arrow");
@@ -453,13 +428,13 @@
                                 container.appendChild(selectRow);
                                 container.appendChild(row);
                                 document.body.appendChild(container);
-                                arrowRight.addEventListener("click", (event) =>
-                                    rightImage(currentSource, event.target)
-                                );
+                            arrowRight.addEventListener("click", (event) =>
+    navigateImage("right",  event.target)
+);
 
-                                arrowLeft.addEventListener("click", (event) =>
-                                    leftImage(currentSource, event.target)
-                                );
+arrowLeft.addEventListener("click", (event) =>
+    navigateImage("left",  event.target)
+);
                                 // Add event listener to change source for the current row
                                 selectSource.addEventListener("change", function () {
                                     let selectedSource = this.value;
