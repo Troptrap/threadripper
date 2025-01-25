@@ -1,22 +1,22 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<title>Thread ripper</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-		<script>
-			eruda.init();
-		</script>
-		<link href="style.css" rel="stylesheet" />
-		<link
-			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-			rel="stylesheet" />
-		<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
-	</head>
-	<body>
-		<nav>
+    <head>
+        <title>Thread ripper</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+        <script>
+            eruda.init();
+        </script>
+        <link href="style.css" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    </head>
+    <body>
+        		<nav>
 			<div class="navbar">
 				<div class="container nav-container">
 					<input class="checkbox" type="checkbox" name="" id="" />
@@ -143,389 +143,352 @@
 				</button>
 			</div>
 		</div>
-		<script type="application/javascript" charset="utf-8">
-			document.addEventListener("DOMContentLoaded", (event) => {
-				console.log("DOM fully loaded and parsed");
-				const imageSourceSelector = document.getElementById(
-					"image-source-selector"
-				);
-				let SOURCE = localStorage.getItem("SOURCE");
-				if (!SOURCE) {
-					SOURCE = "pexels"; // default value
-					localStorage.setItem("SOURCE", SOURCE);
-				} else {
-					imageSourceSelector.value = SOURCE;
-				}
-				console.log("Loaded image source from localStorage:", SOURCE);
-				imageSourceSelector.addEventListener("change", () => {
-					SOURCE = imageSourceSelector.value;
-					localStorage.setItem("SOURCE", SOURCE);
-					console.log("Selected image source:", SOURCE);
-				});
+        <script type="application/javascript" charset="utf-8">
+            document.addEventListener("DOMContentLoaded", (event) => {
+                console.log("DOM fully loaded and parsed");
+                function statusPolling() {
+                    let statusElem = document.getElementById("status");
+                    fetch("/status").then((response) =>
+                        response.text().then((data) => {
+                            statusElem.innerText = data;
+                        })
+                    );
+                }
+                
+                const statusCheck = setInterval(() => {
+                    console.log("Polling started...");
+                    statusPolling();
+                }, 500);
 
-				function statusPolling() {
-					let statusElem = document.getElementById("status");
-					fetch("/status").then((response) =>
-						response.text().then((data) => {
-							statusElem.innerText = data;
-						})
-					);
-				}
+                
+                const imageSourceSelector = document.getElementById("image-source-selector");
+                let SOURCE = localStorage.getItem("SOURCE");
+                if (!SOURCE) {
+                    SOURCE = "pexels"; // default value
+                    localStorage.setItem("SOURCE", SOURCE);
+                } else {
+                    imageSourceSelector.value = SOURCE;
+                }
+                console.log("Loaded image source from localStorage:", SOURCE);
+                imageSourceSelector.addEventListener("change", () => {
+                    SOURCE = imageSourceSelector.value;
+                    localStorage.setItem("SOURCE", SOURCE);
+                    console.log("Selected image source:", SOURCE);
+                });
 
-				const settingsLink = document.getElementById("settings-link");
-				const apiKeysModal = new bootstrap.Modal(
-					document.getElementById("apiKeysModal")
-				);
-				settingsLink.addEventListener("click", () => {
-					apiKeysModal.show();
-					checkApiKeys();
-				});
+                
 
-				const apiKeysForm = document.getElementById("api-keys-form");
-				apiKeysForm.addEventListener("submit", (event) => {
-					event.preventDefault();
-					const pexelsApiKey =
-						document.getElementById("pexels-api-key").value;
-					const pixabayApiKey =
-						document.getElementById("pixabay-api-key").value;
-					const unsplashApiKey =
-						document.getElementById("unsplash-api-key").value;
-					const flickrApiKey =
-						document.getElementById("flickr-api-key").value;
+                const settingsLink = document.getElementById("settings-link");
+                const apiKeysModal = new bootstrap.Modal(document.getElementById("apiKeysModal"));
+                settingsLink.addEventListener("click", () => {
+                    apiKeysModal.show();
+                    checkApiKeys();
+                });
 
-					// Save the API keys
-					saveApiKey("pexels", pexelsApiKey);
-					saveApiKey("pixabay", pixabayApiKey);
-					saveApiKey("unsplash", unsplashApiKey);
-					saveApiKey("flickr", flickrApiKey);
+                const apiKeysForm = document.getElementById("api-keys-form");
+                apiKeysForm.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const pexelsApiKey = document.getElementById("pexels-api-key").value;
+                    const pixabayApiKey = document.getElementById("pixabay-api-key").value;
+                    const unsplashApiKey = document.getElementById("unsplash-api-key").value;
+                    const flickrApiKey = document.getElementById("flickr-api-key").value;
 
-					// Close the modal
-					apiKeysModal.hide();
-				});
+                    // Save the API keys
+                    saveApiKey("pexels", pexelsApiKey);
+                    saveApiKey("pixabay", pixabayApiKey);
+                    saveApiKey("unsplash", unsplashApiKey);
+                    saveApiKey("flickr", flickrApiKey);
 
-				function checkApiKeys() {
-					checkApiKey("pexels");
-					checkApiKey("pixabay");
-					checkApiKey("unsplash");
-					checkApiKey("flickr");
-				}
+                    // Close the modal
+                    apiKeysModal.hide();
+                });
 
-				function checkApiKey(service) {
-					fetch(`/credentials/get/${service}`)
-						.then((response) => response.json())
-						.then((data) => {
-							const statusElem = document.getElementById(
-								`${service}-status`
-							);
-							if (data.exists) {
-								statusElem.textContent = "API key SET ✔️";
-							} else {
-								statusElem.textContent = "API key NOT SET ❌";
-							}
-						});
-				}
+                function checkApiKeys() {
+                    checkApiKey("pexels");
+                    checkApiKey("pixabay");
+                    checkApiKey("unsplash");
+                    checkApiKey("flickr");
+                }
 
-				function saveApiKey(service, key) {
-					fetch(`/credentials/set`, {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify({ service, key })
-					})
-						.then((response) => response.json())
-						.then((data) => {
-							if (data.success) {
-								console.log(
-									`${service} API key saved successfully.`
-								);
-							} else {
-								console.error(
-									`Failed to save ${service} API key.`
-								);
-							}
-						});
-				}
+                function checkApiKey(service) {
+                    fetch(`/credentials/get/${service}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            const statusElem = document.getElementById(`${service}-status`);
+                            if (data.exists) {
+                                statusElem.textContent = "API key SET ✔️";
+                            } else {
+                                statusElem.textContent = "API key NOT SET ❌";
+                            }
+                        });
+                }
 
-				function rightImage(source, elem) {
-					const vidPlayer = elem.parentElement.querySelector("video");
-					let currentIndex = parseInt(vidPlayer.dataset.current);
-					const maxIndex = vidPlayer.dataset.max;
-					const keyword = vidPlayer.dataset.keyword;
-					currentIndex += 1;
-					if (currentIndex <= maxIndex) {
-						vidPlayer.classList.add("flashing-border");
-						fetch(`/${source}/photo/search/${keyword}`)
-							.then((response) => response.json())
-							.then((images) => {
-								if (images.length > 0) {
-									const newPosterUrl = images[currentIndex];
+                function saveApiKey(service, key) {
+                    fetch(`/credentials/set`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ service, key })
+                    })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.success) {
+                                console.log(`${service} API key saved successfully.`);
+                            } else {
+                                console.error(`Failed to save ${service} API key.`);
+                            }
+                        });
+                }
 
-									// Preload the new poster image
-									const img = new Image();
-									img.src = newPosterUrl;
+                function rightImage(source, elem) {
+                    const container = elem.closest(".container");
+                    const kwInput = container.querySelector(".keyword-input");
+                    const keyword = kwInput.value;
+                    const vidPlayer = elem.parentElement.querySelector("video");
+                    let currentIndex = parseInt(vidPlayer.dataset.current);
+                    const maxIndex = vidPlayer.dataset.max;
+                    currentIndex += 1;
+                    if (currentIndex <= maxIndex) {
+                        vidPlayer.classList.add("flashing-border");
+                        fetch(`/${source}/photo/search/${keyword}`)
+                            .then((response) => response.json())
+                            .then((images) => {
+                                if (images.length > 0) {
+                                    const newPosterUrl = images[currentIndex];
 
-									// When the image is fully loaded, update the poster and remove the border
-									img.onload = () => {
-										vidPlayer.dataset.current =
-											currentIndex;
-										vidPlayer.dataset.max = images.length;
-										vidPlayer.setAttribute(
-											"poster",
-											images[parseInt(currentIndex)]
-										);
-										vidPlayer.classList.remove(
-											"flashing-border"
-										);
-									};
-								}
-							});
-					}
-				}
-				function leftImage(source, elem) {
-					const vidPlayer = elem.parentElement.querySelector("video");
-					let currentIndex = parseInt(vidPlayer.dataset.current);
-					const maxIndex = vidPlayer.dataset.max;
-					const keyword = vidPlayer.dataset.keyword;
-					currentIndex -= 1;
-					if (currentIndex >= 0) {
-						vidPlayer.classList.add("flashing-border");
-						fetch(`/${source}/photo/search/${keyword}`)
-							.then((response) => response.json())
-							.then((images) => {
-								if (images.length > 0) {
-									const newPosterUrl = images[currentIndex];
+                                    // Preload the new poster image
+                                    const img = new Image();
+                                    img.src = newPosterUrl;
 
-									// Preload the new poster image
-									const img = new Image();
-									img.src = newPosterUrl;
+                                    // When the image is fully loaded, update the poster and remove the border
+                                    img.onload = () => {
+                                        vidPlayer.dataset.current = currentIndex;
+                                        vidPlayer.dataset.max = images.length;
+                                        vidPlayer.setAttribute("poster", images[parseInt(currentIndex)]);
+                                        vidPlayer.classList.remove("flashing-border");
+                                    };
+                                }
+                            });
+                    }
+                }
 
-									// When the image is fully loaded, update the poster and remove the border
-									img.onload = () => {
-										vidPlayer.dataset.current =
-											currentIndex;
-										vidPlayer.dataset.max = images.length;
-										vidPlayer.setAttribute(
-											"poster",
-											images[parseInt(currentIndex)]
-										);
-										vidPlayer.classList.remove(
-											"flashing-border"
-										);
-									};
-								}
-							});
-					}
-				}
+                function leftImage(source, elem) {
+                    const vidPlayer = elem.parentElement.querySelector("video");
+                    const container = elem.closest(".container");
+                    const kwInput = container.querySelector(".keyword-input");
+                    const keyword = kwInput.value;
+                    let currentIndex = parseInt(vidPlayer.dataset.current);
+                    const maxIndex = vidPlayer.dataset.max;
+                    currentIndex -= 1;
+                    if (currentIndex >= 0) {
+                        vidPlayer.classList.add("flashing-border");
+                        fetch(`/${source}/photo/search/${keyword}`)
+                            .then((response) => response.json())
+                            .then((images) => {
+                                if (images.length > 0) {
+                                    const newPosterUrl = images[currentIndex];
 
-				setInterval(statusPolling, 500);
-				const scrapeBtn = document.getElementById("scrape");
-				const scrapeUrl = document.getElementById("url");
-				// Add focus event listener to clear the URL input field
-				scrapeUrl.addEventListener("focus", () => {
-					scrapeUrl.value = "";
-				});
+                                    // Preload the new poster image
+                                    const img = new Image();
+                                    img.src = newPosterUrl;
 
-				scrapeBtn.addEventListener("click", () => {
-					// Find and delete all divs with 'container-grid' class
-					document
-						.querySelectorAll(".container-grid")
-						.forEach((div) => div.remove());
+                                    // When the image is fully loaded, update the poster and remove the border
+                                    img.onload = () => {
+                                        vidPlayer.dataset.current = currentIndex;
+                                        vidPlayer.dataset.max = images.length;
+                                        vidPlayer.setAttribute("poster", images[parseInt(currentIndex)]);
+                                        vidPlayer.classList.remove("flashing-border");
+                                    };
+                                }
+                            });
+                    }
+                }
 
-					let url = scrapeUrl.value;
-					let fetchThread = fetch("scrape", {
-						method: "POST",
-						headers: {
-							Accept: "application/json, text/plain, */*",
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify({ url: url })
-					});
-					fetchThread.then((response) =>
-						response.json().then((data) => {
-							Object.keys(data).forEach((tweet) => {
-								console.log(data[tweet]["text"]);
-								console.log(data[tweet]["img"]);
-								console.log(data[tweet]["vid"]);
+                
+                const scrapeBtn = document.getElementById("scrape");
+                const scrapeUrl = document.getElementById("url");
+                // Add focus event listener to clear the URL input field
+                scrapeUrl.addEventListener("focus", () => {
+                    scrapeUrl.value = "";
+                });
 
-								let container = document.createElement("div");
-								container.classList.add("container-grid");
+                scrapeBtn.addEventListener("click", () => {
+                    // Find and delete all divs with 'container-grids' class
+                    document.querySelectorAll(".container-t").forEach((div) => div.remove());
 
-								// Adding select source as a separate row above text and image
-								let selectRow = document.createElement("div");
-								selectRow.classList.add("row");
+                    let url = scrapeUrl.value;
+                    let fetchThread = fetch("scrape", {
+                        method: "POST",
+                        headers: {
+                            Accept: "application/json, text/plain, */*",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ url: url })
+                    });
+                    fetchThread.then((response) =>
+                        response.json().then((data) => {
+                            Object.keys(data).forEach((tweet) => {
+                                console.log(data[tweet]["text"]);
+                                console.log(data[tweet]["img"]);
+                                console.log(data[tweet]["vid"]);
 
-								let selectSource =
-									document.createElement("select");
-								selectSource.classList.add("source-selector");
+                                let container = document.createElement("div");
+                                container.classList.add("container-t","container");
 
-								let row = document.createElement("div");
-								row.classList.add("row");
+                                // Adding select source as a separate row above text and image
+                                let selectRow = document.createElement("div");
+                                selectRow.classList.add("row");
 
-								let text = document.createElement("div");
-								let vid = document.createElement("div");
-								text.classList.add("grid-text");
-								vid.classList.add("grid-media");
+                                // Create input for keywords
+                            let kwDiv = document.createElement("div");
+                            kwDiv.classList.add("col");
+                                let keywordInput = document.createElement("input");
+                                keywordInput.classList.add("keyword-input", "col");
+                                keywordInput.setAttribute("placeholder", "Enter keywords");
+                                if (data[tweet]["keyword"]) {
+                                    keywordInput.setAttribute("value", data[tweet]["keyword"]);
+                                }
+                                kwDiv.appendChild(keywordInput);
+                                selectRow.appendChild(kwDiv);
 
-								let tweetTxt = document.createElement("p");
+                                // Initialize choices.js on the input
+                                const choices = new Choices(keywordInput, {
+                                    removeItemButton: true,placeholder: true,
+    placeholderValue: 'Enter Keywords'
+                                });
 
-								tweetTxt.setAttribute(
-									"contenteditable",
-									"true"
-								);
-								tweetTxt.innerText = data[tweet]["text"];
-								let closeTxt = document.createElement("button");
-								closeTxt.classList.add("close-button");
-								closeTxt.textContent = "X";
-								text.appendChild(closeTxt);
-								text.appendChild(tweetTxt);
-								row.appendChild(text);
-								text.addEventListener("click", () => {
-									text.classList.add("fstext");
-									closeTxt.style.display = "block";
-								});
-								closeTxt.addEventListener("click", () => {
-									closeTxt.style.display = "none";
-									
+                                let selectSource = document.createElement("select");
+                                selectSource.classList.add("source-selector", "col");
 
-									setTimeout(() => {
-        text.classList.remove("fstext");
-        console.log("Forcefully removed class after timeout");
-    }, 0);
-	
-								});
+                                let row = document.createElement("div");
+                                row.classList.add("row");
 
-								let vidPlayer = document.createElement("video");
-								if (data[tweet]["vid"] !== null) {
-									vidPlayer.setAttribute(
-										"src",
-										data[tweet]["vid"] + "#t=1"
-									);
-									vidPlayer.setAttribute("controls", "true");
-									vidPlayer.setAttribute("preload", "auto");
-									selectSource.dataset.originalUrl =
-										data[tweet]["vid"]; // Store original URL
-								} else if (data[tweet]["img"] !== null) {
-									vidPlayer.setAttribute(
-										"poster",
-										data[tweet]["img"]
-									);
+                                let text = document.createElement("div");
+                                let vid = document.createElement("div");
+                                text.classList.add("grid-text", "col");
+                                vid.classList.add("grid-media","col");
 
-									selectSource.innerHTML = `
-                            <option value=${SOURCE}>Default source</option>
-                            <option value="pexels">Pexels</option>
-                            <option value="pixabay">Pixabay</option>
-                            <option value="unsplash">Unsplash</option>
-                            <option value="flickr">Flickr</option>
-                            <option value="bing">Bing</option>
-                            <option value="original">Original</option>
-                            
-                        `;
-									selectRow.appendChild(selectSource);
-								} else {
-									selectSource.innerHTML = `
-                            <option value=${SOURCE}>Default source</option>
-                            <option value="pexels">Pexels</option>
-                            <option value="pixabay">Pixabay</option>
-                            <option value="unsplash">Unsplash</option>
-                            <option value="flickr">Flickr</option>
-                            <option value="bing">Bing</option>
-                            
-                            
-                        `;
-									selectRow.appendChild(selectSource);
-									// Fetch image based on keyword
-									let keyword = data[tweet]["keyword"];
-									fetch(`/${SOURCE}/photo/search/${keyword}`)
-										.then((response) => response.json())
-										.then((images) => {
-											if (images.length > 0) {
-												vidPlayer.dataset.current = "0";
-												vidPlayer.dataset.max =
-													images.length;
-												vidPlayer.setAttribute(
-													"poster",
-													images[0]
-												);
-												vidPlayer.dataset.keyword =
-													keyword;
-											}
-										});
-								}
-								
-								let arrowLeft =
-									document.createElement("button");
-								arrowLeft.classList.add("arrow", "left-arrow");
-								arrowLeft.innerHTML = "&#9664;";
-								let currentSource = selectSource.value;
+                                let tweetTxt = document.createElement("p");
 
-								let arrowRight =
-									document.createElement("button");
-								arrowRight.classList.add(
-									"arrow",
-									"right-arrow"
-								);
-								arrowRight.innerHTML = "&#9654;";
+                                tweetTxt.setAttribute("contenteditable", "true");
+                                tweetTxt.innerText = data[tweet]["text"];
+                                let closeTxt = document.createElement("button");
+                                closeTxt.classList.add("close-button");
+                                closeTxt.textContent = "X";
+                                text.appendChild(closeTxt);
+                                text.appendChild(tweetTxt);
+                                row.appendChild(text);
+                                text.addEventListener("click", () => {
+                                    text.classList.add("fstext");
+                                    closeTxt.style.display = "block";
+                                });
+                                closeTxt.addEventListener("click", () => {
+                                    closeTxt.style.display = "none";
+                                    setTimeout(() => {
+                                        text.classList.remove("fstext");
+                                        console.log("Forcefully removed class after timeout");
+                                    }, 0);
+                                });
 
-								vid.appendChild(arrowLeft);
-								vid.appendChild(arrowRight);
-								vid.appendChild(vidPlayer);
-								row.appendChild(vid);
+                                let vidPlayer = document.createElement("video");
+                                if (data[tweet]["vid"] !== null) {
+                                    vidPlayer.setAttribute("src", data[tweet]["vid"] + "#t=1");
+                                    vidPlayer.setAttribute("controls", "true");
+                                    vidPlayer.setAttribute("preload", "auto");
+                                    selectSource.dataset.originalUrl = data[tweet]["vid"]; // Store original URL
+                                } else if (data[tweet]["img"] !== null) {
+                                    vidPlayer.setAttribute("poster", data[tweet]["img"]);
 
-								container.appendChild(row);
-								document.body.appendChild(selectRow);
-								document.body.appendChild(container);
-								arrowRight.addEventListener("click", (event) =>
-									rightImage(currentSource, event.target)
-								);
+                                    selectSource.innerHTML = `
+                                        <option value=${SOURCE}>Default source</option>
+                                        <option value="pexels">Pexels</option>
+                                        <option value="pixabay">Pixabay</option>
+                                        <option value="unsplash">Unsplash</option>
+                                        <option value="flickr">Flickr</option>
+                                        <option value="bing">Bing</option>
+                                        <option value="original">Original</option>
+                                    `;
+                                    selectRow.appendChild(selectSource);
+                                } else {
+                                    selectSource.innerHTML = `
+                                        <option value=${SOURCE}>Default source</option>
+                                        <option value="pexels">Pexels</option>
+                                        <option value="pixabay">Pixabay</option>
+                                        <option value="unsplash">Unsplash</option>
+                                        <option value="flickr">Flickr</option>
+                                        <option value="bing">Bing</option>
+                                    `;
+                            selectSource.classList.add("col");
+                                  selectRow.appendChild(selectSource);
+                                    // Fetch image based on keyword
+                                   // let keyword = data[tweet]["keyword"];
+                                    let keyword = keywordInput.value;
+                                    fetch(`/${SOURCE}/photo/search/${keyword}`)
+                                        .then((response) => response.json())
+                                        .then((images) => {
+                                            if (images.length > 0) {
+                                                vidPlayer.dataset.current = "0";
+                                                vidPlayer.dataset.max = images.length;
+                                                vidPlayer.setAttribute("poster", images[0]);
+                                                vidPlayer.dataset.keyword = keyword;
+                                            }
+                                        });
+                                }
 
-								arrowLeft.addEventListener("click", (event) =>
-									leftImage(currentSource, event.target)
-								);
-								// Add event listener to change source for the current row
-								selectSource.addEventListener(
-									"change",
-									function () {
-										let selectedSource = this.value;
-										if (selectedSource === "default") {
-											selectedSource = SOURCE;
-										}
-										if (selectedSource === "original") {
-											vidPlayer.setAttribute(
-												"src",
-												this.dataset.originalUrl +
-													"#t=1"
-											);
-										} else {
-											// Fetch new image based on the selected source and keyword
-											let keyword =
-												vidPlayer.dataset.keyword;
-											fetch(
-												`/${selectedSource}/photo/search/${keyword}`
-											)
-												.then((response) =>
-													response.json()
-												)
-												.then((images) => {
-													if (images.length > 0) {
-														vidPlayer.dataset.current =
-															"0";
-														vidPlayer.dataset.max =
-															images.length;
-														vidPlayer.setAttribute(
-															"poster",
-															images[0]
-														);
-													}
-												});
-										}
-									}
-								);
-							});
-						})
-					);
-				});
-			});
-		</script>
-	</body>
+                                let arrowLeft = document.createElement("button");
+                                arrowLeft.classList.add("arrow", "left-arrow");
+                                arrowLeft.innerHTML = "&#9664;";
+                                let currentSource = selectSource.value;
+
+                                let arrowRight = document.createElement("button");
+                                arrowRight.classList.add("arrow", "right-arrow");
+                                arrowRight.innerHTML = "&#9654;";
+
+                                vid.appendChild(arrowLeft);
+                                vid.appendChild(arrowRight);
+                                vid.appendChild(vidPlayer);
+                                row.appendChild(vid);
+
+                                container.appendChild(selectRow);
+                                container.appendChild(row);
+                                document.body.appendChild(container);
+                                arrowRight.addEventListener("click", (event) =>
+                                    rightImage(currentSource, event.target)
+                                );
+
+                                arrowLeft.addEventListener("click", (event) =>
+                                    leftImage(currentSource, event.target)
+                                );
+                                // Add event listener to change source for the current row
+                                selectSource.addEventListener("change", function () {
+                                    let selectedSource = this.value;
+                                    if (selectedSource === "default") {
+                                        selectedSource = SOURCE;
+                                    }
+                                    if (selectedSource === "original") {
+                                        vidPlayer.setAttribute("src", this.dataset.originalUrl + "#t=1");
+                                    } else {
+                                        // Fetch new image based on the selected source and keyword
+                                        let keyword = vidPlayer.dataset.keyword;
+                                        fetch(`/${selectedSource}/photo/search/${keyword}`)
+                                            .then((response) => response.json())
+                                            .then((images) => {
+                                                if (images.length > 0) {
+                                                    vidPlayer.dataset.current = "0";
+                                                    vidPlayer.dataset.max = images.length;
+                                                    vidPlayer.setAttribute("poster", images[0]);
+                                                }
+                                            });
+                                    }
+                                });
+                            });
+                            statusPolling();
+                clearInterval(statusCheck);
+                        })
+                    );
+                });
+            });
+        </script>
+    </body>
 </html>
