@@ -1,0 +1,104 @@
+		<nav>
+			<div class="navbar">
+				<div class="container nav-container">
+					<input class="checkbox" type="checkbox" name="" id="" />
+					<div class="hamburger-lines">
+						<span class="line line1"></span>
+						<span class="line line2"></span>
+						<span class="line line3"></span>
+					</div>
+					<div class="logo">
+						<h1>Threads Ripper</h1>
+					</div>
+					<div class="menu-items">
+						<li>
+							<a href="#"> Images source </a>
+							<select id="image-source-selector">
+								<option value="pexels">Pexels</option>
+								<option value="pixabay">Pixabay</option>
+								<option value="unsplash">Unsplash</option>
+								<option value="flickr">Flickr</option>
+								<option value="bing">Bing</option>
+							</select>
+						</li>
+						<li>
+							<a href="#" id="settings-link">API keys</a>
+						</li>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<div
+			class="modal fade"
+			id="apiKeysModal"
+			tabindex="-1"
+			aria-labelledby="apiKeysModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="apiKeysModalLabel">
+							API Keys
+						</h5>
+						<button
+							type="button"
+							class="btn-close"
+							data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="api-keys-form">
+							<div class="mb-3">
+								<label for="pexels-api-key" class="form-label"
+									>Pexels API Key</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="pexels-api-key"
+									placeholder="Enter Pexels API Key" />
+								<span id="pexels-status"></span>
+							</div>
+							<div class="mb-3">
+								<label for="pixabay-api-key" class="form-label"
+									>Pixabay API Key</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="pixabay-api-key"
+									placeholder="Enter Pixabay API Key" />
+								<span id="pixabay-status"></span>
+							</div>
+							<div class="mb-3">
+								<label for="unsplash-api-key" class="form-label"
+									>Unsplash API Key</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="unsplash-api-key"
+									placeholder="Enter Unsplash API Key" />
+								<span id="unsplash-status"></span>
+							</div>
+							<div class="mb-3">
+								<label for="flickr-api-key" class="form-label"
+									>Flickr API Key</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="flickr-api-key"
+									placeholder="Enter Flickr API Key" />
+								<span id="flickr-status"></span>
+							</div>
+
+							<button type="submit" class="btn btn-primary">
+								Save
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>

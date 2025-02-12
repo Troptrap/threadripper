@@ -1,0 +1,25 @@
+		{% extends 'base.html' %}
+
+{% block content %}	
+			<div class="row">
+				<p id="status"></p>
+				<p>Insert link below</p>
+			</div>
+			<div class="row">
+				<input
+					type="url"
+					name="url"
+					id="url"
+					value="https://threadreaderapp.com/thread/1868467535198187523.html?utm_campaign=topunroll" />
+			</div>
+			<div class="row">
+				<button
+					type="submit"
+					name="scrape"
+					id="scrape"
+					class="btn btn-primary">
+					Scrape
+				</button>
+			</div>
+			
+			{% endblock %}

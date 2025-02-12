@@ -2,14 +2,18 @@ import re
 import os
 import json
 import pickle
+import asyncio
 import requests
+import platform
 import llama_cpp
 from math import sqrt, pow
 from bs4 import BeautifulSoup
+from nltk import sent_tokenize
 from dotenv import load_dotenv
-from utils import analyze_text
+from utils import analyze_text, concat_audio
 from flask_caching import Cache
-from flask import Flask, request, jsonify, send_from_directory
+from edgevoice import voices_list, msft_tts
+from flask import Flask, request, jsonify, send_from_directory, render_template
 import logging
 
 
@@ -37,12 +41,94 @@ cache = Cache(app, config={'DEBUG': True, 'CACHE_TYPE': 'SimpleCache',"CACHE_DEF
 #app.config["UPLOAD_PATH"] = "media"
 HOST = "0.0.0.0"
 PORT = 8000
+FONT_DIR = "fonts"  # Path to the fonts directory
+# Common system font directories
+SYSTEM_FONT_DIRS = {
+    "Windows": [os.path.join(os.environ.get("WINDIR", "C:\\Windows"), "Fonts")],
+    "Linux": ["/usr/share/fonts", "/usr/local/share/fonts","/system/fonts", os.path.expanduser("~/.fonts")],
+    "Darwin": ["/System/Library/Fonts", "/Library/Fonts", os.path.expanduser("~/Library/Fonts")],  # macOS
+}
 
+def get_system_fonts():
+    """Retrieve system fonts from standard directories."""
+    system_fonts = {}
+    os_type = platform.system()
+    for font_dir in SYSTEM_FONT_DIRS.get(os_type, []):
+        if os.path.exists(font_dir):
+            for font_file in os.listdir(font_dir):
+                if font_file.lower().endswith((".ttf")):
+                    font_name = os.path.splitext(font_file)[0]  # Remove file extension
+                    if font_name not in system_fonts:  # Avoid duplicates
+                        system_fonts[font_name] = "system"
+
+    return system_fonts
+@app.route("/fonts", defaults={"filename": None})
+@app.route("/fonts/<filename>")
+def fonts(filename):
+    if filename is None:
+        try:
+            fonts_dict = {}
+
+            # Get custom fonts (app directory)
+            if os.path.exists(FONT_DIR):
+                for font_file in os.listdir(FONT_DIR):
+                    if font_file.lower().endswith((".ttf")):
+                        font_name = os.path.splitext(font_file)[0]
+                        fonts_dict[font_name] = "app"
+
+            # Get system fonts
+            system_fonts = get_system_fonts()
+
+            # Merge fonts, giving precedence to app fonts
+            for font_name, source in system_fonts.items():
+                if font_name not in fonts_dict:
+                    fonts_dict[font_name] = source  # Only add if not already in app fonts
+
+            return jsonify(fonts_dict)
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        # Check if the file exists in the custom font directory first
+        if os.path.exists(os.path.join(FONT_DIR, filename)):
+            return send_from_directory(FONT_DIR, filename)
+
+        # Check system font directories
+        os_type = platform.system()
+        for font_dir in SYSTEM_FONT_DIRS.get(os_type, []):
+            font_path = os.path.join(font_dir, filename)
+            if os.path.exists(font_path):
+                return send_from_directory(font_dir, filename)
+
+        return jsonify({"error": "Font not found"}), 404
 
 @app.route("/status/")
 def status():
   return STATUS
-  
+@app.route("/tts", methods=["POST"])
+def tts():
+    data = request.get_json()
+    text = data["text"]
+    file = data["filename"]
+    voice = data["voice"]
+    sentences = sent_tokenize(text)
+    paths = []
+    timestamps = []
+
+    for idx, sentence in enumerate(sentences):
+        filename = f"audio{idx}.mp3"
+        try:
+            asyncio.run(msft_tts(sentence, voice, filename))
+            paths.append((filename, sentence))  # Store filename and sentence
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    audio_path, subtitle_path = concat_audio(paths, file)
+
+    return jsonify({
+        "audio": audio_path,
+        "subtitles": subtitle_path
+    })
   
 @app.route("/credentials/get/<service>", methods=["GET"])
 def get_api_key(service):
@@ -171,7 +257,7 @@ def remove_urls(text, replacement_text=''):
 def home():
   global STATUS
   STATUS = "Ready"
-  return send_from_directory(app.static_folder, "index.html")
+  return render_template('index.html')
 
 
   
@@ -223,7 +309,7 @@ def scrape():
   STATUS = "Getting tweets"
   
   tweet_dict = dict()
-  for x in range(1,tweetscount,1):
+  for x in range(1,tweetscount+1,1):
     STATUS = "Scraping.."
     tweet_detail = dict()
     tweetno = 'tweet_'+str(x)

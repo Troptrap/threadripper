@@ -1,0 +1,58 @@
+[Script Info]
+Title: Generated Subtitles
+ScriptType: v4.00+
+Collisions: Normal
+PlayDepth: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,24,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,1,2,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.01,0:00:00.57,Default,Sub,0,0,0,0,{\2c&FFFF00FF}On{\r} January 26, 1975, Daisaku Ikeda (1928–2023) delivered
+Dialogue: 0,0:00:00.57,0:00:01.13,Default,Sub,0,0,0,0,On {\2c&FFFF00FF}January{\r} 26, 1975, Daisaku Ikeda (1928–2023) delivered
+Dialogue: 0,0:00:01.13,0:00:01.69,Default,Sub,0,0,0,0,On January {\2c&FFFF00FF}26,{\r} 1975, Daisaku Ikeda (1928–2023) delivered
+Dialogue: 0,0:00:01.69,0:00:02.25,Default,Sub,0,0,0,0,On January 26, {\2c&FFFF00FF}1975,{\r} Daisaku Ikeda (1928–2023) delivered
+Dialogue: 0,0:00:02.25,0:00:02.81,Default,Sub,0,0,0,0,On January 26, 1975, {\2c&FFFF00FF}Daisaku{\r} Ikeda (1928–2023) delivered
+Dialogue: 0,0:00:02.81,0:00:03.38,Default,Sub,0,0,0,0,On January 26, 1975, Daisaku {\2c&FFFF00FF}Ikeda{\r} (1928–2023) delivered
+Dialogue: 0,0:00:03.38,0:00:03.94,Default,Sub,0,0,0,0,On January 26, 1975, Daisaku Ikeda {\2c&FFFF00FF}(1928–2023){\r} delivered
+Dialogue: 0,0:00:03.94,0:00:04.50,Default,Sub,0,0,0,0,On January 26, 1975, Daisaku Ikeda (1928–2023) {\2c&FFFF00FF}delivered{\r}
+Dialogue: 0,0:00:04.50,0:00:05.06,Default,Sub,0,0,0,0,{\2c&FFFF00FF}a{\r} historic speech to mark the founding of
+Dialogue: 0,0:00:05.06,0:00:05.62,Default,Sub,0,0,0,0,a {\2c&FFFF00FF}historic{\r} speech to mark the founding of
+Dialogue: 0,0:00:05.62,0:00:06.18,Default,Sub,0,0,0,0,a historic {\2c&FFFF00FF}speech{\r} to mark the founding of
+Dialogue: 0,0:00:06.18,0:00:06.74,Default,Sub,0,0,0,0,a historic speech {\2c&FFFF00FF}to{\r} mark the founding of
+Dialogue: 0,0:00:06.74,0:00:07.31,Default,Sub,0,0,0,0,a historic speech to {\2c&FFFF00FF}mark{\r} the founding of
+Dialogue: 0,0:00:07.31,0:00:07.87,Default,Sub,0,0,0,0,a historic speech to mark {\2c&FFFF00FF}the{\r} founding of
+Dialogue: 0,0:00:07.87,0:00:08.43,Default,Sub,0,0,0,0,a historic speech to mark the {\2c&FFFF00FF}founding{\r} of
+Dialogue: 0,0:00:08.43,0:00:08.99,Default,Sub,0,0,0,0,a historic speech to mark the founding {\2c&FFFF00FF}of{\r}
+Dialogue: 0,0:00:08.99,0:00:09.89,Default,Sub,0,0,0,0,{\2c&FFFF00FF}the{\r} Soka Gakkai International (SGI)
+Dialogue: 0,0:00:09.89,0:00:10.79,Default,Sub,0,0,0,0,the {\2c&FFFF00FF}Soka{\r} Gakkai International (SGI)
+Dialogue: 0,0:00:10.79,0:00:11.69,Default,Sub,0,0,0,0,the Soka {\2c&FFFF00FF}Gakkai{\r} International (SGI)
+Dialogue: 0,0:00:11.69,0:00:12.58,Default,Sub,0,0,0,0,the Soka Gakkai {\2c&FFFF00FF}International{\r} (SGI)
+Dialogue: 0,0:00:12.58,0:00:13.48,Default,Sub,0,0,0,0,the Soka Gakkai International {\2c&FFFF00FF}(SGI){\r}
+Dialogue: 0,0:00:13.48,0:00:13.84,Default,Sub,0,0,0,0,{\2c&FFFF00FF}To{\r} commemorate this milestone, celebrated annually as SGI
+Dialogue: 0,0:00:13.84,0:00:14.19,Default,Sub,0,0,0,0,To {\2c&FFFF00FF}commemorate{\r} this milestone, celebrated annually as SGI
+Dialogue: 0,0:00:14.19,0:00:14.55,Default,Sub,0,0,0,0,To commemorate {\2c&FFFF00FF}this{\r} milestone, celebrated annually as SGI
+Dialogue: 0,0:00:14.55,0:00:14.91,Default,Sub,0,0,0,0,To commemorate this {\2c&FFFF00FF}milestone,{\r} celebrated annually as SGI
+Dialogue: 0,0:00:14.91,0:00:15.26,Default,Sub,0,0,0,0,To commemorate this milestone, {\2c&FFFF00FF}celebrated{\r} annually as SGI
+Dialogue: 0,0:00:15.26,0:00:15.62,Default,Sub,0,0,0,0,To commemorate this milestone, celebrated {\2c&FFFF00FF}annually{\r} as SGI
+Dialogue: 0,0:00:15.62,0:00:15.97,Default,Sub,0,0,0,0,To commemorate this milestone, celebrated annually {\2c&FFFF00FF}as{\r} SGI
+Dialogue: 0,0:00:15.97,0:00:16.33,Default,Sub,0,0,0,0,To commemorate this milestone, celebrated annually as {\2c&FFFF00FF}SGI{\r}
+Dialogue: 0,0:00:16.33,0:00:16.68,Default,Sub,0,0,0,0,{\2c&FFFF00FF}Day,{\r} excerpts from the original recording of the
+Dialogue: 0,0:00:16.68,0:00:17.04,Default,Sub,0,0,0,0,Day, {\2c&FFFF00FF}excerpts{\r} from the original recording of the
+Dialogue: 0,0:00:17.04,0:00:17.39,Default,Sub,0,0,0,0,Day, excerpts {\2c&FFFF00FF}from{\r} the original recording of the
+Dialogue: 0,0:00:17.39,0:00:17.75,Default,Sub,0,0,0,0,Day, excerpts from {\2c&FFFF00FF}the{\r} original recording of the
+Dialogue: 0,0:00:17.75,0:00:18.10,Default,Sub,0,0,0,0,Day, excerpts from the {\2c&FFFF00FF}original{\r} recording of the
+Dialogue: 0,0:00:18.10,0:00:18.46,Default,Sub,0,0,0,0,Day, excerpts from the original {\2c&FFFF00FF}recording{\r} of the
+Dialogue: 0,0:00:18.46,0:00:18.82,Default,Sub,0,0,0,0,Day, excerpts from the original recording {\2c&FFFF00FF}of{\r} the
+Dialogue: 0,0:00:18.82,0:00:19.17,Default,Sub,0,0,0,0,Day, excerpts from the original recording of {\2c&FFFF00FF}the{\r}
+Dialogue: 0,0:00:19.17,0:00:19.53,Default,Sub,0,0,0,0,{\2c&FFFF00FF}speech,{\r} are available here, with subtitles in nine
+Dialogue: 0,0:00:19.53,0:00:19.88,Default,Sub,0,0,0,0,speech, {\2c&FFFF00FF}are{\r} available here, with subtitles in nine
+Dialogue: 0,0:00:19.88,0:00:20.24,Default,Sub,0,0,0,0,speech, are {\2c&FFFF00FF}available{\r} here, with subtitles in nine
+Dialogue: 0,0:00:20.24,0:00:20.59,Default,Sub,0,0,0,0,speech, are available {\2c&FFFF00FF}here,{\r} with subtitles in nine
+Dialogue: 0,0:00:20.59,0:00:20.95,Default,Sub,0,0,0,0,speech, are available here, {\2c&FFFF00FF}with{\r} subtitles in nine
+Dialogue: 0,0:00:20.95,0:00:21.30,Default,Sub,0,0,0,0,speech, are available here, with {\2c&FFFF00FF}subtitles{\r} in nine
+Dialogue: 0,0:00:21.30,0:00:21.66,Default,Sub,0,0,0,0,speech, are available here, with subtitles {\2c&FFFF00FF}in{\r} nine
+Dialogue: 0,0:00:21.66,0:00:22.02,Default,Sub,0,0,0,0,speech, are available here, with subtitles in {\2c&FFFF00FF}nine{\r}
+Dialogue: 0,0:00:22.02,0:00:24.86,Default,Sub,0,0,0,0,{\2c&FFFF00FF}languages{\r}
