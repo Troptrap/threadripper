@@ -1,0 +1,11 @@
+{
+  "subtitles": {
+    "font": "CheGuevaraBarry-Brown",
+    "font-size": "26",
+    "font-color": "#33AACC80",
+    "outline-size": "1",
+    "outline-color": "#33AACC90",
+    "highlight-type": "color",
+    "caps": "false"
+  }
+}

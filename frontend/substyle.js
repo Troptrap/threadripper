@@ -1,124 +1,235 @@
+document.addEventListener("DOMContentLoaded", () => {
+	/* ---------------------------
+	 * 1️⃣ VARIABLES
+	 * --------------------------- */
+	const demoText = document.getElementById("demoText");
+	const select = document.getElementById("fontSelect");
+	const colorInput = document.getElementById("colorInput");
+	const outlineColorInput = document.getElementById("outlineColorInput");
+	const outlineInput = document.getElementById("outline");
+	const outlineSize = document.getElementById("outline-size");
+	const fontSize = document.getElementById("fontsize");
+	const fontSizeVal = document.getElementById("font-size");
+	const resultColor = document.getElementById("resultColor");
+	const highlightType = document.getElementById("htype");
+	const allCaps = document.getElementById("caps");
+	const highlightColorInput = document.getElementById("highlightColorInput");
 
-			document.addEventListener("DOMContentLoaded", function () {
-				function changeFont(h2Selector, fontName, fontUrl) {
-					let styleTag = document.getElementById("dynamicFontStyle");
-					if (!styleTag) {
-						styleTag = document.createElement("style");
-						styleTag.id = "dynamicFontStyle";
-						document.head.appendChild(styleTag);
-					}
+	const initialColor = (highlightColorInput.dataset.jscolor.match(
+		/value:\s*'([^']+)'/
+	) || [])[1];
 
-					const newFontFace = new FontFace(
-						fontName,
-						`url(${fontUrl}) format('truetype')`
-					);
-					newFontFace
-						.load()
-						.then((loadedFont) => {
-							document.fonts.add(loadedFont);
+	/* ---------------------------
+	 * 2️⃣ FUNCTION DEFINITIONS
+	 * --------------------------- */
 
-							// Apply the font to the h2 element
-							styleTag.innerHTML = `
-            #${h2Selector} {
-                font-family: '${fontName}', sans-serif;
-                -webkit-text-stroke: 2px red;
-            }
-        `;
-						})
-						.catch((err) => {
-							console.error("Font loading failed:", err);
-						});
-				}
+	const getColor = () => colorInput.value;
 
-				fetch("/fonts") // Fetch the font list from the Flask route
-					.then((response) => response.json())
-					.then((fonts) => {
-						const select = document.getElementById("fontSelect");
-						select.innerHTML = ""; // Clear previous options
+	function populateSizeSelectors() {
+		const fontSizeSelect = document.getElementById("fontsize");
+		const outlineSelect = document.getElementById("outline");
 
-						let appFonts = [];
-						let systemFonts = [];
+		if (!fontSizeSelect || !outlineSelect) return;
 
-						// Categorize fonts into "app" and "system"
-						for (const [fontName, source] of Object.entries(
-							fonts
-						)) {
-							if (source === "app") {
-								appFonts.push(fontName);
-							} else if (source === "system") {
-								systemFonts.push(fontName);
-							}
-						}
+		// Populate main font sizes (8–72 px, step 2)
+		Array.from({ length: (72 - 8) / 2 + 1 }, (_, i) => 8 + i * 2).forEach(
+			size => {
+				const option = document.createElement("option");
+				option.value = size;
+				option.textContent = `${size}px`;
+				if (size === 26) option.selected = true;
+				fontSizeSelect.appendChild(option);
+			}
+		);
 
-						// Function to add options to select
-						function addOption(value, text, disabled = false) {
-							const option = document.createElement("option");
-							option.value = value;
-							option.textContent = text;
-							if (disabled) {
-								option.disabled = true;
-								option.style.fontWeight = "bold"; // Optional: Style disabled options
-							}
-							select.appendChild(option);
-						}
+		// Populate outline sizes (None, 1–4)
+		[
+			{ value: 0, label: "None" },
+			...[1, 2, 3, 4].map(n => ({ value: n, label: `${n}px` }))
+		].forEach(({ value, label }) => {
+			const option = document.createElement("option");
+			option.value = value;
+			option.textContent = label;
+			if (value === 1) option.selected = true;
+			outlineSelect.appendChild(option);
+		});
+	}
 
-						// Add "APP" section
-						if (appFonts.length > 0) {
-							addOption("", "── APP ──", true);
-							appFonts.forEach((font) => addOption(font, font));
-						}
+	const allCapital = () => {
+		demoText.innerHTML = allCaps.checked
+			? demoText.innerHTML.toUpperCase()
+			: demoText.innerHTML.toLowerCase();
+	};
 
-						// Add "SYSTEM" section
-						if (systemFonts.length > 0) {
-							addOption("", "── SYSTEM ──", true);
-							systemFonts.forEach((font) =>
-								addOption(font, font)
-							);
-						}
-						select.addEventListener("change", function () {
-							let demoText = document.getElementById("demoText");
-							changeFont(
-								"demoText",
-								select.value,
-								`/fonts/${select.value}.ttf`
-							);
-						});
-					})
-					.catch((error) => {
-						console.error("Error fetching fonts:", error);
-					});
+	const highlightText = (elem, color) => {
+		const highlightTypeElem = document.querySelector(
+			'input[name="options"]:checked'
+		);
+		const highlightType = highlightTypeElem?.id;
+		let text = elem.innerHTML.replace(/<span[^>]*>(.*?)<\/span>/g, "$1");
 
-				function toHex(value) {
-					let hex = value.toString(16);
-					return hex.length === 1 ? "0" + hex : hex;
-				}
-				let colorInput = document.getElementById("colorInput");
-				let opacityInput = document.getElementById("opacityInput");
-				let resultColor = document.getElementById("resultColor");
-				function getColor() {
-					let color = colorInput.value;
-					let opacity = parseInt(opacityInput.value, 10);
-					let alpha = Math.round((opacity * 255) / 100);
-					let alphaHex = toHex(alpha);
-					let hexColor8 = color + alphaHex;
-					return hexColor8;
-				}
-				resultColor.style.color = getColor();
-				colorInput.addEventListener("change", function () {
-					resultColor.style.color = getColor();
-				});
+		console.log(highlightType);
 
-				opacityInput.addEventListener("input", function () {
-					document.getElementById("opacityValue").textContent =
-						this.value + "%";
-					resultColor.style.color = getColor();
-				});
+		const firstIndex = text.indexOf("@");
+		const lastIndex = text.lastIndexOf("@");
+		let newText;
 
-				document
-					.getElementById("generateBtn")
-					.addEventListener("click", function () {
-						document.getElementById("result").value =
-							getColor().toUpperCase();
-					});
+		if (
+			firstIndex !== -1 &&
+			lastIndex !== -1 &&
+			firstIndex !== lastIndex &&
+			highlightType === "hbox"
+		) {
+			const highlightedWord = text.substring(firstIndex + 1, lastIndex);
+			const highlightedSpan = `@<span style="background-color: ${color};">${highlightedWord}</span>@`;
+			newText = `${text.substring(
+				0,
+				firstIndex
+			)}${highlightedSpan}${text.substring(lastIndex + 1)}`;
+		} else if (
+			firstIndex !== -1 &&
+			lastIndex !== -1 &&
+			firstIndex !== lastIndex &&
+			highlightType === "hcolor"
+		) {
+			const highlightedWord = text.substring(firstIndex + 1, lastIndex);
+			const highlightedSpan = `@<span style="color: ${color};">${highlightedWord}</span>@`;
+			newText = `${text.substring(
+				0,
+				firstIndex
+			)}${highlightedSpan}${text.substring(lastIndex + 1)}`;
+		} else {
+			newText = text;
+		}
+
+		elem.innerHTML = newText;
+	};
+
+	const changeFont = (fontName, fontUrl) => {
+		const newFontFace = new FontFace(
+			fontName,
+			`url(${fontUrl}) format('truetype')`
+		);
+
+		newFontFace
+			.load()
+			.then(loadedFont => {
+				document.fonts.add(loadedFont);
+				demoText.style.fontFamily = fontName;
+			})
+			.catch(err => console.error("Font loading failed:", err));
+	};
+
+	const addOption = (selectElem, value, text, disabled = false) => {
+		const option = document.createElement("option");
+		option.value = value;
+		option.textContent = text;
+		if (disabled) {
+			option.disabled = true;
+			option.style.fontWeight = "bold";
+		}
+		selectElem.appendChild(option);
+	};
+
+	/* ---------------------------
+	 * 3️⃣ CODE EXECUTION & EVENTS
+	 * --------------------------- */
+	populateSizeSelectors();
+	// Initialize colors and highlight
+	resultColor.style.color = getColor();
+	highlightText(demoText, initialColor);
+
+	// Fetch available fonts
+	fetch("/fonts")
+		.then(res => res.json())
+		.then(fonts => {
+			select.innerHTML = "";
+			const appFonts = [];
+			const systemFonts = [];
+
+			Object.entries(fonts).forEach(([fontName, source]) => {
+				if (source === "app") appFonts.push(fontName);
+				else if (source === "system") systemFonts.push(fontName);
 			});
+
+			if (appFonts.length > 0) {
+				addOption(select, "", "── APP ──", true);
+				appFonts.forEach(font => addOption(select, font, font));
+			}
+
+			if (systemFonts.length > 0) {
+				addOption(select, "", "── SYSTEM ──", true);
+				systemFonts.forEach(font => addOption(select, font, font));
+			}
+
+			select.addEventListener("change", () => {
+				changeFont(select.value, `/fonts/${select.value}.ttf`);
+			});
+		})
+		.catch(err => console.error("Error fetching fonts:", err));
+
+	// All caps toggle
+	allCaps.addEventListener("change", allCapital);
+
+	// Text color & outline updates
+	colorInput.addEventListener("change", () => {
+		demoText.style.color = getColor();
+		demoText.style[
+			"-webkit-text-stroke"
+		] = `${outlineInput.value}px ${outlineColorInput.value}`;
+	});
+
+	outlineInput.addEventListener("change", () => {
+		demoText.style.color = getColor();
+		demoText.style[
+			"-webkit-text-stroke"
+		] = `${outlineInput.value}px ${outlineColorInput.value}`;
+	});
+
+	outlineColorInput.addEventListener("change", () => {
+		demoText.style.color = getColor();
+		demoText.style[
+			"-webkit-text-stroke"
+		] = `${outlineInput.value}px ${outlineColorInput.value}`;
+	});
+
+	// Font size control
+	fontSize.addEventListener("change", () => {
+		demoText.style.fontSize = `${fontSize.value}px`;
+	});
+
+	// Highlight color & text updates
+	const updateHighlight = () =>
+		highlightText(demoText, highlightColorInput.value);
+
+	highlightType.addEventListener("change", updateHighlight);
+	highlightColorInput.addEventListener("change", updateHighlight);
+	demoText.addEventListener("input", updateHighlight);
+
+	// Save config
+	document.getElementById("saveCfg").addEventListener("click", () => {
 		
+		const highlightTypeElem = document.querySelector(
+			'input[name="options"]:checked'
+		);
+		const highlightType = highlightTypeElem?.id;
+		let subsCfg = {};
+		subsCfg["font"] = select.value;
+		subsCfg["font-size"] = fontSize.value;
+		subsCfg["font-color"] = getColor();
+		subsCfg["outline-size"] = outlineInput.value;
+		subsCfg["outline-color"] = outlineColorInput.value;
+		subsCfg["highlight-type"] = highlightType.substring(1);
+		subsCfg["caps"] = allCaps.checked ? "true":"false";
+		fetch('/save_settings', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    section: "subtitles",
+    settings: subsCfg
+  })
+});
+		
+		
+	});
+});

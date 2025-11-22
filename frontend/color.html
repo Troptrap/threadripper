@@ -8,6 +8,13 @@
 		<link
 			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
 			rel="stylesheet" />
+		<style type="text/css" media="all">
+			.btn-primary.active,
+			.btn-check:checked + .btn-primary {
+				background-color: red !important;
+				border-color: darkred !important;
+			}
+		</style>
 		<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
 
 		<script>
@@ -19,34 +26,102 @@
 
 		<!-- Color Selection -->
 		<div class="mb-3">
-			<label for="colorInput" class="form-label">Choose a color</label>
-			<input
-				type="color"
-				id="colorInput"
-				class="form-control form-control-color"
-				value="#ff0000" />
-		</div>
-
-		<!-- Opacity Selection -->
-		<div class="mb-3">
-			<label for="opacityInput" class="form-label">
-				Opacity: <span id="opacityValue">100%</span>
-			</label>
-			<input
-				type="range"
-				id="opacityInput"
-				class="form-range"
-				min="0"
-				max="100"
-				value="100" />
-		</div>
-		<div id="resultColor" class="mb-3">
+			<label for="fontSelect">Select font</label>
 			<select id="fontSelect" class="form-select form-select-lg mb-3">
 				<option disabled>Loading fonts...</option>
 			</select>
-			<h2 contenteditable="true" id="demoText">
-				This is an Example Text. Edit it
-			</h2>
+			<label for="colorInput" class="form-label">Main color</label>
+			<input
+				id="colorInput"
+				class="form-control form-control-color"
+				data-jscolor="{ value: '#33AACC80', backgroundColor: '#333', shadowColor: '#FFFFFF80', width: 250, height: 250 }" />
+		</div>
+		<div class="mb-3">
+			<label for="outlineColorInput" class="form-label"
+				>Outline color</label
+			>
+			<input
+				id="outlineColorInput"
+				class="form-control form-control-color"
+				data-jscolor="{ value: '#33AACC', backgroundColor: '#333', shadowColor: '#FFFFFF', width: 250, height: 250 }" />
+		</div>
+		<div class="mb-2">
+			<label for="fontsize">Font size</label
+			><span id="font-size">: 36px</span>
+			<input
+				type="range"
+				name="fontsize"
+				id="fontsize"
+				min="1"
+				value="36"
+				class="form-range" />
+		</div>
+		<div class="mb-3">
+			<label for="outline" class="form-label">Outline: </label
+			><span id="outline-size"> None</span>
+			<input
+				type="range"
+				name="outline"
+				id="outline"
+				class="form-range"
+				value="0"
+				min="0"
+				max="4"
+				step="1" />
+		</div>
+
+		<div class="mb-3" id="htype">
+			<div class="mb-3">
+				<label class="form-label">Highlight type:</label>
+			</div>
+
+			<div class="btn-group" role="group">
+				<input
+					type="radio"
+					class="btn-check"
+					name="options"
+					id="hcolor"
+					autocomplete="off"
+					checked />
+				<label class="btn btn-primary" for="hcolor">Color</label>
+
+				<input
+					type="radio"
+					class="btn-check"
+					name="options"
+					id="hbox"
+					autocomplete="off" />
+				<label class="btn btn-primary" for="hbox">Box</label>
+				<input
+					type="radio"
+					class="btn-check"
+					name="options"
+					id="hnone"
+					autocomplete="off" />
+				<label class="btn btn-primary" for="hnone">None</label>
+			</div>
+		</div>
+		<div class="mb-3">
+			<label for="highlightColorInput" class="form-label"
+				>Highlight color</label
+			>
+			<input
+				id="highlightColorInput"
+				class="form-control form-control-color"
+				data-jscolor="{ value: '#DB18FF', backgroundColor: '#333', shadowColor: '#FFFFFF', width: 250, height: 250 }" />
+		</div>
+		<div class="mb-3 form-check form-switch">
+			<input
+				type="checkbox"
+				name="caps"
+				id="caps"
+				class="form-check-input" />
+			<label for="caps" class="form-check-label">CAPS</label>
+		</div>
+		<div id="resultColor" class="mb-3">
+			<p style="font-size: 36px" contenteditable="true" id="demoText">
+				This is an Example Text with @highlight@ . Edit it
+			</p>
 		</div>
 
 		<!-- Generate Button -->
@@ -65,8 +140,12 @@
 		</div>
 
 		<!-- JavaScript Script -->
-<script src="substyle.js" type="text/javascript" charset="utf-8"></script>
+		<script
+			src="substyle.js"
+			type="text/javascript"
+			charset="utf-8"></script>
 		<!-- Bootstrap 5 Bundle with Popper -->
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.2/jscolor.min.js"></script>
 	</body>
 </html>

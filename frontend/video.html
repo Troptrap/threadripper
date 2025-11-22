@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Color Picker with Opacity (8-digit Hex)</title>
+		<!-- Bootstrap 5 CSS -->
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+		<style type="text/css" media="all">
+			.btn-primary.active,
+			.btn-check:checked + .btn-primary {
+				background-color: red !important;
+				border-color: darkred !important;
+			}
+		</style>
+		<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+
+		<script>
+			eruda.init();
+		</script>
+	</head>
+	<body>
+		<div class="mb-3">
+			<label for="orientation">Video orientation</label>
+			<select name="orientation" id="orientation" class="w-25">
+				<option value="portrait">Portrait</option>
+				<option value="landscape">Landscape</option>
+			</select>
+		</div>
+		<div class="mb-3">
+			<label for="animation">Image animation</label>
+			<select name="animation" id="animation" class="w-25">
+				<option value="randomA">Random</boption>
+				<option value="zoom">Zoom</option>
+				<option value="pan">Pan</option>
+				<option value="pan-zoom">Pan & Zoom</option>
+			</select>
+			</div>
+			<div class="mb-3">
+			  
+			<label for="transition">Transition</label>
+			<select name="transition" id="transition" class="w-25">
+				<option value="randomT">Random</option>
+				<option value="cut">Cut</option>
+				<option value="fade">Fade</option>
+				<option value="dissolve">Dissolve</option>
+			  
+			  
+			</select>
+		</div>
+	</body>
+</html>

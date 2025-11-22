@@ -41,6 +41,65 @@ cache = Cache(app, config={'DEBUG': True, 'CACHE_TYPE': 'SimpleCache',"CACHE_DEF
 #app.config["UPLOAD_PATH"] = "media"
 HOST = "0.0.0.0"
 PORT = 8000
+
+
+SETTINGS_PATH = 'settings.json'
+
+
+def load_settings():
+    """Load settings.json safely, return empty dict if missing/corrupt."""
+    if os.path.exists(SETTINGS_PATH):
+        with open(SETTINGS_PATH, 'r', encoding='utf-8') as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return {}
+    return {}
+
+
+def save_settings_file(settings):
+    """Write settings.json prettily."""
+    with open(SETTINGS_PATH, 'w', encoding='utf-8') as f:
+        json.dump(settings, f, indent=2, ensure_ascii=False)
+
+
+@app.route('/save_settings', methods=['POST'])
+def save_settings():
+    data = request.get_json()
+    if not data or 'section' not in data or 'settings' not in data:
+        return jsonify({"error": "Missing 'section' or 'settings'"}), 400
+
+    section = data['section']
+    new_settings = data['settings']
+
+    settings = load_settings()
+    section_settings = settings.get(section, {})
+    section_settings.update(new_settings)
+    settings[section] = section_settings
+
+    save_settings_file(settings)
+
+    return jsonify({
+        "status": "success",
+        "section": section,
+        "merged_settings": section_settings
+    })
+
+
+@app.route('/get_settings', methods=['GET'])
+def get_settings():
+    section = request.args.get('section')
+    settings = load_settings()
+
+    if section:
+        if section in settings:
+            return jsonify({section: settings[section]})
+        else:
+            return jsonify({"error": f"Section '{section}' not found"}), 404
+
+    # Return full settings if no section specified
+    return jsonify(settings)
+    
 FONT_DIR = "fonts"  # Path to the fonts directory
 # Common system font directories
 SYSTEM_FONT_DIRS = {
@@ -353,6 +412,11 @@ def scrape():
   STATUS = "Loaded"
   return(tweet_json)
 
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'frontend'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == "__main__":
     # Run Flask App

@@ -228,12 +228,12 @@ video {
 .source-selector {
 	width: 100%;
 	padding: 5px;
-	//margin-bottom: 10px;
+	/*margin-bottom: 10px;
 }
 .arrow {
 	position: absolute;
 	top: 50%;
-	//transform: translateY(-50%);
+	/*transform: translateY(-50%);*/
 	background-color: #0d6edf;
 	color: white;
 	border: none;
@@ -283,4 +283,12 @@ video {
 
 .fstext p {
 	font-size: 18px;
+}
+input[type="range"].vertical {
+  writing-mode: vertical-lr;
+  direction: rtl; /* makes it go bottom → top */
+  width: 8px;
+  height: 150px;
+  margin: 0 10px;
+  appearance: slider-vertical;
 }

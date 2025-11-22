@@ -2,11 +2,13 @@ document.addEventListener("DOMContentLoaded", () => {
 	console.log("DOM fully loaded and parsed");
 
 	function statusPolling() {
-		fetch("/status").then((response) =>
-			response.text().then((data) => {
-				document.getElementById("status").innerText = data;
+		fetch("/status")
+			.then((response) => response.text())
+			.then((data) => {
+				const statusEl = document.getElementById("status");
+				if (statusEl) statusEl.innerText = data;
 			})
-		);
+			.catch((err) => console.error("statusPolling error:", err));
 	}
 
 	const statusCheck = setInterval(() => {
@@ -20,13 +22,15 @@ document.addEventListener("DOMContentLoaded", () => {
 	);
 	let SOURCE = localStorage.getItem("SOURCE") || "pexels";
 	localStorage.setItem("SOURCE", SOURCE);
-	imageSourceSelector.value = SOURCE;
+	if (imageSourceSelector) imageSourceSelector.value = SOURCE;
 
-	imageSourceSelector.addEventListener("change", () => {
-		SOURCE = imageSourceSelector.value;
-		localStorage.setItem("SOURCE", SOURCE);
-		console.log("Selected image source:", SOURCE);
-	});
+	if (imageSourceSelector) {
+		imageSourceSelector.addEventListener("change", () => {
+			SOURCE = imageSourceSelector.value;
+			localStorage.setItem("SOURCE", SOURCE);
+			console.log("Selected image source:", SOURCE);
+		});
+	}
 
 	// API keys modal
 	const settingsLink = document.getElementById("settings-link");
@@ -34,21 +38,25 @@ document.addEventListener("DOMContentLoaded", () => {
 		document.getElementById("apiKeysModal")
 	);
 
-	settingsLink.addEventListener("click", () => {
-		apiKeysModal.show();
-		checkApiKeys();
-	});
+	if (settingsLink) {
+		settingsLink.addEventListener("click", () => {
+			apiKeysModal.show();
+			checkApiKeys();
+		});
+	}
 
-	document
-		.getElementById("api-keys-form")
-		.addEventListener("submit", (event) => {
+	const apiKeysForm = document.getElementById("api-keys-form");
+	if (apiKeysForm) {
+		apiKeysForm.addEventListener("submit", (event) => {
 			event.preventDefault();
 			["pexels", "pixabay", "unsplash", "flickr"].forEach((service) => {
-				const key = document.getElementById(`${service}-api-key`).value;
+				const keyEl = document.getElementById(`${service}-api-key`);
+				const key = keyEl ? keyEl.value : "";
 				saveApiKey(service, key);
 			});
 			apiKeysModal.hide();
 		});
+	}
 
 	function checkApiKeys() {
 		["pexels", "pixabay", "unsplash", "flickr"].forEach(checkApiKey);
@@ -58,9 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
 		fetch(`/credentials/get/${service}`)
 			.then((response) => response.json())
 			.then((data) => {
-				document.getElementById(`${service}-status`).textContent =
-					data.exists ? "API key SET ✔️" : "API key NOT SET ❌";
-			});
+				const el = document.getElementById(`${service}-status`);
+				if (el)
+					el.textContent = data.exists ? "API key SET ✔️" : "API key NOT SET ❌";
+			})
+			.catch((err) => console.error("checkApiKey error:", err));
 	}
 
 	function saveApiKey(service, key) {
@@ -78,38 +88,44 @@ document.addEventListener("DOMContentLoaded", () => {
 						? `${service} API key saved successfully.`
 						: `Failed to save ${service} API key.`
 				);
-			});
+			})
+			.catch((err) => console.error("saveApiKey error:", err));
 	}
 
 	// Scrape button
 	const scrapeBtn = document.getElementById("scrape");
 	const scrapeUrl = document.getElementById("url");
 
-	scrapeUrl.addEventListener("focus", () => {
-		scrapeUrl.value = "";
-	});
+	if (scrapeUrl) {
+		scrapeUrl.addEventListener("focus", () => {
+			scrapeUrl.value = "";
+		});
+	}
 
-	scrapeBtn.addEventListener("click", () => {
-		document
-			.querySelectorAll(".container-t")
-			.forEach((div) => div.remove());
+	if (scrapeBtn && scrapeUrl) {
+		scrapeBtn.addEventListener("click", () => {
+			document
+				.querySelectorAll(".container-t")
+				.forEach((div) => div.remove());
 
-		fetch("scrape", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({ url: scrapeUrl.value })
-		})
-			.then((response) => response.json())
-			.then((data) => {
-				Object.keys(data).forEach((tweet) => {
-					createTweetContainer(data[tweet]);
-				});
-				statusPolling();
-				clearInterval(statusCheck);
-			});
-	});
+			fetch("scrape", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({ url: scrapeUrl.value })
+			})
+				.then((response) => response.json())
+				.then((data) => {
+					Object.keys(data).forEach((tweet) => {
+						createTweetContainer(data[tweet]);
+					});
+					statusPolling();
+					clearInterval(statusCheck);
+				})
+				.catch((err) => console.error("scrape error:", err));
+		});
+	}
 
 	function createTweetContainer(tweet) {
 		const container = document.createElement("div");
@@ -129,11 +145,14 @@ document.addEventListener("DOMContentLoaded", () => {
 		kwDiv.appendChild(keywordInput);
 		selectRow.appendChild(kwDiv);
 
-		const choices = new Choices(keywordInput, {
-			removeItemButton: true,
-			placeholder: true,
-			placeholderValue: "Enter Keywords"
-		});
+		// Choices.js init (if loaded)
+		if (typeof Choices !== "undefined") {
+			const choices = new Choices(keywordInput, {
+				removeItemButton: true,
+				placeholder: true,
+				placeholderValue: "Enter Keywords"
+			});
+		}
 
 		const selectSource = document.createElement("select");
 		selectSource.classList.add("source-selector", "col");
@@ -151,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		text.classList.add("grid-text", "col");
 		const tweetTxt = document.createElement("p");
 		tweetTxt.setAttribute("contenteditable", "true");
-		tweetTxt.innerText = tweet["text"];
+		tweetTxt.innerText = tweet["text"] || "";
 		const closeTxt = document.createElement("button");
 		closeTxt.classList.add("close-button");
 		closeTxt.textContent = "X";
@@ -183,16 +202,18 @@ document.addEventListener("DOMContentLoaded", () => {
 		} else if (tweet["img"]) {
 			vidPlayer.setAttribute("poster", tweet["img"]);
 			selectSource.dataset.originalUrl = tweet["img"];
-		} else {
+		} else if (tweet["keyword"]) {
+			// fallback search
 			fetch(`/${SOURCE}/photo/search/${tweet["keyword"]}`)
 				.then((response) => response.json())
 				.then((images) => {
-					if (images.length > 0) {
+					if (images && images.length > 0) {
 						vidPlayer.dataset.current = "0";
-						vidPlayer.dataset.max = images.length;
+						vidPlayer.dataset.max = String(images.length - 1); // store max index
 						vidPlayer.setAttribute("poster", images[0]);
 					}
-				});
+				})
+				.catch((err) => console.error("image fetch error:", err));
 		}
 
 		const sources = ["pexels", "pixabay", "unsplash", "flickr", "bing"];
@@ -214,21 +235,22 @@ document.addEventListener("DOMContentLoaded", () => {
 		const arrowLeft = document.createElement("button");
 		arrowLeft.classList.add("arrow", "left-arrow");
 		arrowLeft.innerHTML = "&#9664;";
-		arrowLeft.addEventListener("click", (event) =>
-			navigateImage("left", event.target)
-		);
+		arrowLeft.addEventListener("click", function (event) {
+			navigateImage("left", event.currentTarget);
+		});
 
 		const arrowRight = document.createElement("button");
 		arrowRight.classList.add("arrow", "right-arrow");
 		arrowRight.innerHTML = "&#9654;";
-		arrowRight.addEventListener("click", (event) =>
-			navigateImage("right", event.target)
-		);
+		arrowRight.addEventListener("click", function (event) {
+			navigateImage("right", event.currentTarget);
+		});
 
 		vid.appendChild(arrowLeft);
 		vid.appendChild(arrowRight);
 		vid.appendChild(vidPlayer);
 		row.appendChild(vid);
+
 		// Create a new row for the delete button
 		const deleteRow = document.createElement("div");
 		deleteRow.classList.add("row", "justify-content-center");
@@ -253,25 +275,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		selectSource.addEventListener("change", function () {
 			const selectedSource = this.value;
-			const container = this.closest(".container");
-			const keyword = container.querySelector(".keyword-input").value;
+			const containerEl = this.closest(".container");
+			const keyword = containerEl.querySelector(".keyword-input").value;
 			if (selectedSource === "original") {
-				vidPlayer.setAttribute(
-					"src",
-					this.dataset.originalUrl + "#t=1"
-				);
-				vidPlayer.setAttribute("poster", this.dataset.originalUrl);
+				const original = this.dataset.originalUrl;
+				if (original) {
+					vidPlayer.setAttribute("src", original + "#t=1");
+					vidPlayer.setAttribute("poster", original);
+				}
 			} else {
 				fetch(`/${selectedSource}/photo/search/${keyword}`)
 					.then((response) => response.json())
 					.then((images) => {
-						if (images.length > 0) {
+						if (images && images.length > 0) {
 							vidPlayer.dataset.current = "0";
-							vidPlayer.dataset.max = images.length;
+							vidPlayer.dataset.max = String(images.length - 1);
 							vidPlayer.setAttribute("poster", images[0]);
 							vidPlayer.setAttribute("src", "");
 						}
-					});
+					})
+					.catch((err) => console.error("selectSource fetch error:", err));
 			}
 		});
 	}
@@ -281,9 +304,11 @@ document.addEventListener("DOMContentLoaded", () => {
 		const container = elem.closest(".container");
 		const keyword = container.querySelector(".keyword-input").value;
 		const source = container.querySelector(".source-selector").value;
-		let currentIndex = parseInt(vidPlayer.dataset.current);
-		const maxIndex = parseInt(vidPlayer.dataset.max);
+		// fallback values (ensure ints)
+		let currentIndex = parseInt(vidPlayer.dataset.current || "0", 10);
+		let maxIndex = parseInt(vidPlayer.dataset.max || "0", 10); // max index (length-1)
 
+		// Bound checks: maxIndex is the last valid index
 		if (direction === "right" && currentIndex < maxIndex) {
 			currentIndex += 1;
 		} else if (direction === "left" && currentIndex > 0) {
@@ -296,17 +321,25 @@ document.addEventListener("DOMContentLoaded", () => {
 		fetch(`/${source}/photo/search/${keyword}`)
 			.then((response) => response.json())
 			.then((images) => {
-				if (images.length > 0) {
+				if (images && images.length > 0) {
 					const newPosterUrl = images[currentIndex];
-					const img = new Image();
+					const img = new Image(); // fixed variable name
 					img.src = newPosterUrl;
 					img.onload = () => {
-						vidPlayer.dataset.current = currentIndex;
-						vidPlayer.dataset.max = images.length;
+						vidPlayer.dataset.current = String(currentIndex);
+						vidPlayer.dataset.max = String(images.length - 1);
 						vidPlayer.setAttribute("poster", newPosterUrl);
 						vidPlayer.classList.remove("flashing-border");
 					};
+					img.onerror = () => {
+						console.error("Failed to load image:", newPosterUrl);
+						vidPlayer.classList.remove("flashing-border");
+					};
 				}
+			})
+			.catch((err) => {
+				console.error("navigateImage fetch error:", err);
+				vidPlayer.classList.remove("flashing-border");
 			});
 	}
 });
